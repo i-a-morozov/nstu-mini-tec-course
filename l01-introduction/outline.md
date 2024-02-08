@@ -104,23 +104,23 @@
 # Python (standard libraries)
 [Back to Top](#course-contents)
 
-- os
-- sys
-- pathlib
-- collections
-- itertools
-- functools
-- operator
-- argparse
-- logging
-- json
-- pickle
-- socket
-- http.server
-- urllib.request
-- dataclasses
-- abc
-- typing
+- **os**: Interfaces with operating system functionality.
+- **sys**: Interacts with the Python interpreter.
+- **pathlib**: Object-oriented file system path manipulation.
+- **collections**: Specialized container datatypes.
+- **itertools**: Tools for efficient looping.
+- **functools**: Higher-order functions and operations on callable objects.
+- **operator**: Function equivalents of arithmetic and comparison operators.
+- **argparse**: Parser for command-line options, arguments, and sub-commands.
+- **logging**: Flexible logging system.
+- **json**: JSON serialization and deserialization.
+- **pickle**: Object serialization and deserialization.
+- **socket**: Interface for network communication.
+- **http.server**: Basic HTTP server.
+- **urllib.request**: Open and read URLs.
+- **dataclasses**: Simplifies class definitions for data storage.
+- **abc**: Framework for defining Abstract Base Classes.
+- **typing**: Support for type hints.
 
 <!-- SECTION  -->
 # Numpy
