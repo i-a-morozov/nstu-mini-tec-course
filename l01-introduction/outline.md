@@ -178,5 +178,5 @@
 - Python library and documentation (pyproject.toml, build, twine, pip, sphinx)
 - Python CI (testing, linting and profiling) (pylint, mypy, pytest, pytest-cov, scalene)
 - Symbolic computations (sympy, rubi)
-- Pandas, Polars, Dsk and google sheets API
+- Pandas, Polars, Dask and google sheets API
 
