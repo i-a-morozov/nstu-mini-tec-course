@@ -143,3 +143,29 @@ sudo apt install tmux
 - Suggested extensions to try
     - Python
     - Jupyter
+
+# (optional) Wolfram Engine
+
+- [Download](https://www.wolfram.com/engine/) installer
+- Get your license (you'll need to register and enter your credentials after installation)
+- Install Wolfram Engine
+    ```bash
+    cd ~/Downloads
+    chmod u+x WolframEngine_14.0.0_LINUX.sh
+    sudo ./WolframEngine_14.0.0_LINUX.sh
+    ```
+- Start `WolframKernel` and enter your credentials (user name and password)
+    ```bash
+    WolframKernel 
+    Wolfram Language 14.0.0 Engine for Linux x86 (64-bit)
+    Copyright 1988-2023 Wolfram Research, Inc.
+
+    In[1]:= Exit[]     
+    ```
+- Install [Wolfram Language kernel for Jupyter](https://github.com/WolframResearch/WolframLanguageForJupyter)
+    ```bash
+    cd ~/Downloads
+    git clone https://github.com/WolframResearch/WolframLanguageForJupyter.git
+    cd WolframLanguageForJupyter
+    ./configure-jupyter.wls add
+    ```
