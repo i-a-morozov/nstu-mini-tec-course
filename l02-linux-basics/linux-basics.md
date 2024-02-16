@@ -1238,8 +1238,8 @@ $ wc -w test.txt
 
     ```bash
     $ # Download files
-    $ curl -O https://github.com/i-a-morozov/nstu-tec/tree/main/README.MD
-    $ wget https://github.com/i-a-morozov/nstu-tec/tree/main/LISENCE
+    $ curl -O https://raw.githubusercontent.com/i-a-morozov/nstu-mini-tec-course/main/README.MD
+    $ wget https://raw.githubusercontent.com/i-a-morozov/nstu-mini-tec-course/main/LICENSE
     ```
 
 <!-- SECTION  -->
