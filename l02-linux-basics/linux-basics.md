@@ -1028,11 +1028,11 @@ Changing Group Ownership (`chgrp`):
     6 test.txt
     ```
 
-```bash
-$ # Count number of words in a file (use -c for characters)
-$ wc -w test.txt 
-6 test.txt
-```
+    ```bash
+    $ # Count number of words in a file (use -c for characters)
+    $ wc -w test.txt 
+    6 test.txt
+    ```
 
     ```bash
     $ # Count number of directories
