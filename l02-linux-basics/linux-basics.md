@@ -1451,6 +1451,7 @@ In Linux, software distribution and management are primarily handled through the
 
     - `chmod +x <application>.sh`, `./<application>.sh`
     - `make`, `make install`
+    - `ninja`, `meson`
 
 
 <!-- SECTION  -->
