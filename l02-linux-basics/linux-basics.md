@@ -1384,7 +1384,7 @@ In Linux, software distribution and management are primarily handled through the
     - `sudo apt upgrade`: Upgrades all installed packages to the latest versions.
     - `sudo apt install <package>`: Installs package.
     - `sudo apt remove <package>`: Removes package without removing its configuration files.
-    - `sudo apt <package> `: Removes both package and its configuration files.
+    - `sudo apt purge <package> `: Removes both package and its configuration files.
     - `apt list`: List installed packages (can save list of installed packages into a file `sudo apt list > packages.txt`, or pipe to `less`/`grep`/...)
 
 - `snap`: Ubuntu (Canonical) package tool (system level packages).
@@ -1954,12 +1954,12 @@ One or multiple processes that are initiated from the same shell or terminal ses
 
     ```bash
     $ # Kill by name
-    $ kill <name>
+    $ killall <name>
     ```
 
     ```bash
     $ # Kill by user (forcefully)
-    $ kill -u <user> -SIGKILL
+    $ killall -u <user> -SIGKILL
     ```
 
 - `time`: Run programs and summarize system resource usage.
@@ -2482,7 +2482,7 @@ Basic service management:
     ```bash
     $ host 8.8.8.8
     8.8.8.8.in-addr.arpa domain name pointer dns.google.
-    ``
+    ```
 
 - `hostname`: View or set the system's hostname.
 
