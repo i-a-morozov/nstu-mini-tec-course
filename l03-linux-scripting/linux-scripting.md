@@ -1,0 +1,1024 @@
+<!-- Every shell includes hell  -->
+
+
+<!-- SECTION -->
+# Contents
+- [BASH and command line basics](#bash-and-command-line-basics)
+  - [Command structure](#command-structure)
+  - [BASH features](#bash-features)
+  - [Command line navigation](#command-line-navigation)
+- [Compound commands](#compound-commands)
+  - [Separation of commands](#separation-of-commands)
+  - [Pipes](#pipes)
+  - [Background](#background)
+  - [Grouping of commands](#grouping-of-commands)
+- [Redirections](#redirections)
+  - [Standard redirections](#standard-redirections)
+  - [Process substitution](#process-substitution)
+  - [Here documents and here strings](#here-documents-and-here-strings)
+  - [Advanced redirections](#advanced-redirections)
+- [Script files](#script-files)
+- [Brace expansion](#brace-expansion)
+- [Wildcards](#wildcards)
+- [Globbing](#globbing-pathname-expansion)
+
+
+
+<!-- SECTION -->
+# BASH and command line basics
+[Back to Top](#contents)
+
+`bash` (Bourne-Again SHell) is a command language interpreter, or shell, for Unix-like operating systems and is the default shell in many popular Linux distributions. A shell interprets user commands and acts as a middleman between the user and the system's kernel, along with other operating system services. It provides a command-line interface (CLI) that allows users to interact with the system. The shell takes commands typed by the user and translates them into a format that the operating system can understand and act on. It can execute commands directly or launch other programs. In addition, shells offer programming constructs that enable users to write scripts: small programs that can automate tasks, manipulate files, and perform many other routine tasks.
+
+The following command displays the path to the default user shell binary in the terminal (emulator), which is also referred to as the **standard output**:
+
+```bash
+$ echo "${SHELL}"
+/bin/bash
+```
+
+In the above example, the `$` symbol represents a non-privileged user's prompt, while the `#` symbol would usually indicate a privileged root user's prompt. After the prompt (i.e. after `$` or `#` symbols), the command `echo "${SHELL}"` is entered (you need to press `Enter` key to execute it), which displays the value of the `SHELL` variable. Note, `SHELL` is a variable name, while `"${SHELL}"` is how its value is referenced. The prompt then becomes ready to accept a new command. A common workflow with terminal commands is to enter one command at a time and adjust the next command according to the current command output:
+
+```bash
+$ echo "${USER}"
+nstu
+$ echo "${GROUPS}"
+1000
+```
+
+Here the values of two different environment variables are displayed using `echo` command.
+
+<!-- SUBSECTION -->
+## Command structure
+[Back to Top](#contents)
+
+In the terminal user can enter different commands to interact with the system. In general different options and arguments can be passed to a command:
+
+```bash
+$ command [options] [arguments]
+```
+
+- `command` is the name of the program, e.g. `echo`, `ls` or `cd`
+
+- `options` (also known as flags or switches) are commonly schematically shown inside `[]` to indicate their optional usage, `options` modify the behavior of the command and are typically preceded by a single dash or double dash
+  - `-option` (short option, Unix style) is the traditional Unix/Linux style, where options are prefixed by a single dash and usually consist of a single letter, such options can often be combined without spaces in between, e.g. `ls -altrh`
+  - `--option` (long option, GNU style) is a more modern, GNU-style approach for specifying options with full words, which makes it clear what the option does, for some long options their short form is also available (usually the first letter is used in this case if available)
+
+- `arguments` are the targets or values upon which the command acts, `arguments` can also be optional
+
+Several short options that don't require additional values (act like on/off flags) can be combined, e.g in `ls -a -l` can be written as `ls -al`. Long options cannot be combined in the same way. Some long options might require an equals sign when assigning a value, like `--option=value`.
+
+Additionally `--` can be used by itself to signify the end of the command options. After `--`, all following inputs are treated as arguments, not as options. This is particularly useful when `-` present in commands.
+
+Equally important concept is the command **exit code**. Executing a command returns a value that indicates its execution status. The **exit code** of the most recent command can be checked with `echo $?` command:
+
+```bash
+$ echo "${USER}"
+nstu
+$ echo "${?}"
+0
+```
+
+Zero value indicates successful execution, while values other than zero correspond to some kind of an error.
+
+To illustrate the above concepts `ls` command can be used. It is used to list files and directories. First, create several nested directories:
+
+```bash
+$ mkdir -p versions/v-{0.1.0,0.2.0,0.2.1,1.0.0,1.0.1}
+$ tree versions
+versions
+├── v-0.1.0
+├── v-0.2.0
+├── v-0.2.1
+├── v-1.0.0
+└── v-1.0.1
+5 directories, 0 files
+```
+
+Now `ls` can be used to list files (directories in our case). List everything in `versions` directory:
+
+```bash
+$ ls versions
+v0.1.0  v0.2.0  v0.2.1  v1.0.0  v1.0.1
+$ ls -- versions
+v0.1.0  v0.2.0  v0.2.1  v1.0.0  v1.0.1
+```
+
+Use `--classify` (long) option to classify listed items (here `/` is appended to all listed names since all items are in fact directories):
+
+```bash
+$ ls --classify versions
+v-0.1.0/  v-0.2.0/  v-0.2.1/  v-1.0.0/  v-1.0.1/
+```
+
+Similarly a short form `-F` of the same option can be used:
+
+```bash
+$ ls -F versions
+v-0.1.0/  v-0.2.0/  v-0.2.1/  v-1.0.0/  v-1.0.1/
+```
+
+One or several short flag-like options can be combined:
+
+```bash
+$ ls -mF versions
+v-0.1.0/, v-0.2.0/, v-0.2.1/, v-1.0.0/, v-1.0.1/
+```
+
+Use command arguments to exclude listing of patch versions in reversed order (note, `--` is not necessary here and is used to visually separate arguments from options):
+
+```bash
+$ ls -r -- versions/v-*[0]
+versions/v-1.0.0:
+versions/v-0.2.0:
+versions/v-0.1.0:
+```
+
+In the above example a pattern `v-*[0]` was used to show only directories that end with zero. Similar effect can be achieved using `hide` long option:
+
+```bash
+$ ls -r --hide='v-*[^0]' -- versions
+v-1.0.0  v-0.2.0  v-0.1.0
+$ rm -r versions
+```
+
+Again, a pattern `'v-*[^0]'` was used that now hides directories that do not end with a zero. Note, this will work as intended only if patch numbers are in `{0..9}` range. The last command `rm -r versions` removes versions` directory and all its subdirectories.
+
+The above examples illustrate the usage of `ls` command with different options and arguments. Use `man command` to see all available option(s) and the form argument(s) for different commands, e.g. look at `pwd`, `ls`, `cd`, `cp`, `mv` and `rm`.
+
+A long command can be split across several lines with `\` (write `\` and press `Enter` to start a new line):
+
+```bash
+$ mkdir -p versions/v-{0.1.0,0.2.0,0.2.1,1.0.0,1.0.1}
+$ ls \
+> -r --hide='v-*[^0]' \
+> -- \
+> versions
+v-1.0.0  v-0.2.0  v-0.1.0
+$ rm -r versions
+```
+
+<!-- SUBSECTION -->
+## BASH features
+[Back to Top](#contents)
+
+`bash` is a domain specific language, it provides a robust environment for scripting and task automation. Its main purpose is user interaction with the system and automation of repeated routine tasks via scripts. `bash` has several features that make it powerful and flexible:
+
+- **Command Processor**: Processes user commands, entered by the user at the command prompt.
+- **Scripting Language**: Scripting language allowing users to write complex programs that perform batch processing and automate tasks.
+- **Environment Control**: Provides the ability to control the operating environment of the system, including managing files and directories, starting and stopping services.
+- **User Interface**: Powerful and efficient CLI.
+- **Piping and Redirection**: Allows for the output of one command to be used as the input to another (piping), and it can also redirect input and output from and to files or programs.
+- **Job Control**: Supports job control, which allows users to stop, start, and manage background and foreground processes.
+- **Expansion**: Features different types of expansion (brace expansion, tilde expansion, variable expansion, command substitution, etc.) for generation of complex command lines.
+- **History**: Keeps a history of commands that have been entered, allowing users to easily recall, edit, and rerun past commands.
+- **Customization**: Users can customize their shell environment using a file called `.bashrc` (aliases, functions, variables, and more).
+- **Compatibility**: Aims to be portable across different Unix-like systems.
+
+<!-- SUBSECTION -->
+## Command line navigation
+[Back to Top](#contents)
+
+Command line navigation can greatly enhance productivity and reduce the amount of typing. Here are some key techniques and shortcuts:
+
+- **Tab Completion**:
+   - **Basic Completion**: Press the `Tab` key while typing a command or file name. `bash` will auto-complete the name if it is uniquely identified. If there are multiple matches, pressing `Tab` twice will display all possible completions.
+   - **Command Completion**: When typing a command, `Tab` completion also works for command names.
+   - **File and Directory Completion**: Works for file and directory names. If you type a few characters of a file/directory name and press `Tab`, `bash` will auto-complete it.
+
+- **Searching Command History (`Ctrl`+`R`)**:
+   - To search through your command history, press `Ctrl`+`R`. Start typing a part of the command you're looking for. Bash will dynamically search your command history and present the matches.
+   - Press `Ctrl`+`R` again to cycle through other matches.
+   - Once you find the desired command, press `Enter` to execute it, or `Right Arrow` or `End` to edit it.
+
+- **Navigating within the Command Line**:
+   - `Ctrl`+`A`: Move to the beginning of the line.
+   - `Ctrl`+`E`: Move to the end of the line.
+   - `Ctrl`+`Left Arrow`/`Ctrl`+`Right Arrow`: Move the cursor between words/arguments.
+
+- **Manipulating Command History**:
+   - **Using the `history` Command**: Type `history` to display recent commands. Use `history N` to display the last N commands.
+   - **Re-executing Commands**: Use `!N` to re-execute the Nth command in the history list. For example, `!100` will execute the 100th command in your history.
+   - **Re-executing the Last Command**: Use `!!` to quickly re-execute the last command.
+
+- **Other Useful Shortcuts**:
+   - `Ctrl`+`U`: Cut everything before the cursor to the clipboard.
+   - `Ctrl`+`K`: Cut everything after the cursor to the clipboard.
+   - `Ctrl`+`Y`: Paste the last thing you cut.
+   - `Ctrl`+`L`: Clear the screen.
+   - `Ctrl`+`X` `Ctrl`+`E`: Edit command with $EDITOR
+   - `Ctrl`+`N`: Next command in history
+   - `Ctrl`+`P`: Previous command in history
+
+
+<!-- SECTION -->
+# Compound commands
+[Back to Top](#contents)
+
+So far we have seen how to enter and execute commands one at a time, but `bash` allows more advanced combination of commands. Commands combination is a powerful feature that allows to express complex behaviors. There are several options when it comes to commands combination: execution of several commands in a sequence, conditional execution, passing the result of one command to the other.
+
+<!-- SUBSECTION -->
+## Separation of commands
+[Back to Top](#contents)
+
+It is possible to enter several commands by separating them with semicolons:
+
+```bash
+$ mkdir versions ; cd versions; mkdir v-{1..5}.0.0 ; ls ; cd ..
+v-1.0.0  v-2.0.0  v-3.0.0  v-4.0.0  v-5.0.0
+```
+
+In this example `mkdir versions` command creates `versions` directory, `cd versions` changes the working directory to `versions`, `mkdir v-{1..5}.0.0` creates several directories inside the current working directory, `ls` lists files (directories in this case) and `cd ..` changes the working directory back to the starting one (goes up one level). With the `;` separator, commands are executed sequentially, regardless of whether the previous command succeeded or failed. For example, if the same command is executed again:
+
+```bash
+$ mkdir versions ; cd versions; mkdir v-{1..5}.0.0 ; ls ; cd ..
+mkdir: cannot create directory ‘versions’: File exists
+mkdir: cannot create directory ‘v-1.0.0’: File exists
+mkdir: cannot create directory ‘v-2.0.0’: File exists
+mkdir: cannot create directory ‘v-3.0.0’: File exists
+mkdir: cannot create directory ‘v-4.0.0’: File exists
+mkdir: cannot create directory ‘v-5.0.0’: File exists
+v-1.0.0  v-2.0.0  v-3.0.0  v-4.0.0  v-5.0.0
+```
+
+all `mkdir` commands fail to create corresponding directories since they already exist. 
+
+The above command **exit code** (here it is the **exit code** of the last command `cd ..`) :
+
+```bash
+$ echo $?
+0
+```
+
+The value of `?` special variable is the execution status of `cd ..` command, i.e. the very last command in the chain, which was executed successfully (zero **exit code** indicates success, non-zero **exit code** indicate an error). For the above the **exit code** is zero, which might not be the intended behavior.
+
+It is important to note that if one of the commands fails (i.e. `mkdir` fails), the rest of the commands are still executed. This behavior can be changed with `set` command, for example, if `set -e` is executed at the beginning of a shell session (or a script), the shell will stop on the first failed command (see `help set` for details). 
+
+More advanced (conditional) behavior can be achieved using `&&` or `||` separators. In the case of `&&` (AND) commands after the first failed command will not be executed, for `||` (OR) the execution is stopped once the current command finishes successfully (returns zero **exit code**). `&&` and `||` separators have equal precedence, while the precedence of `;` is smaller.
+
+For example, in the following the first command fails, which stops the execution:
+
+```bash
+$ mkdir versions && cd versions && mkdir v-{1..5}.0.0 && ls && cd ..
+mkdir: cannot create directory ‘versions’: File exists
+$ echo $?
+1
+```
+
+Lets now break down the following command:
+
+```bash
+$ mkdir versions || cd versions && mkdir v-{1..5}.0.0 || ls ; cd ..
+mkdir: cannot create directory ‘versions’: File exists
+mkdir: cannot create directory ‘v-1.0.0’: File exists
+mkdir: cannot create directory ‘v-2.0.0’: File exists
+mkdir: cannot create directory ‘v-3.0.0’: File exists
+mkdir: cannot create directory ‘v-4.0.0’: File exists
+mkdir: cannot create directory ‘v-5.0.0’: File exists
+v-1.0.0  v-2.0.0  v-3.0.0  v-4.0.0  v-5.0.0
+```
+
+First `mkdir versions` is executed and fails, but the separator is `||`, so the execution is continued. Next `cd versions` is executed. To this point the executed command is `mkdir versions || cd versions` which is successful, hence condition for `&&` separator is fulfilled and `mkdir v-{1..5}.0.0` is executed and fails. The full command is now `mkdir versions || cd versions && mkdir mkdir v-{1..5}.0.0` and the separator is `||`, hence `ls` is executed. Next separator is `;` and `cd ..` is executed whether the previous command `mkdir versions || cd versions && mkdir mkdir v-{1..5}.0.0 || ls` failed or not.
+
+To sum it up, use `;` to run commands in sequence, `&&` to run the next command only if the previous succeeds, and `||` for the next command to run only if the previous fails. Note, the overall **exit code** of the compound command will be different for different separators, which can be used to control the program flow. As it can be seen, nesting of several separators can become progressively cumbersome to interpret and it is hence better to avoid complicated nestings.
+
+A useful application of `&&` or `||` separators is to replace `if` statement where appropriate. For example, execute a command only if a file or a directory exists:
+
+```bash
+$ [ -e versions/v-1.0.0 ] && cd versions/v-1.0.0
+$ echo $?
+0
+$ cd ../..
+$ [ -e versions/v-9.0.0 ] && cd versions/v-9.0.0
+$ echo $?
+1
+```
+
+<!-- SUBSECTION -->
+## Pipes
+[Back to Top](#contents)
+
+Execution of commands prints some output to the terminal. This output is called the **standard output** and it is in fact a file (if the command fails errors are also printed, but to the **standard error**, also a file). Some commands expect input from a file, such input can be also performed using the **standard input**. To redirect the **standard output** of one command to the **standard input** of the next command pipe `|` can be used (use `|&` to pipe both **standard output** and **standard error**). Consider the following example:
+
+```bash
+$ rm -rf versions
+$ mkdir -p versions/v-{0.1.0,0.2.0,0.2.1,1.0.0,1.0.1}
+$ ls versions | grep '^v.*0$' | wc -l
+3
+```
+
+First remove `versions` directory if any, create several nested directories with `mkdir -p versions/v-{0.1.0,0.2.0,0.2.1,1.0.0,1.0.1}`. `ls versions` command returns a list of files that are piped to `grep` command, which uses `'^v.*0$'` pattern to filter out minor versions. The output of `grep` command is piped again into `wc -l` command, which justs counts the number of such files.
+
+<!-- SUBSECTION -->
+## Background
+[Back to Top](#contents)
+
+The `&` symbol at the end of a command in `bash` causes the command to run in the background. This will in general spawn a subshell (a child shell process of the current shell) for the background command to run in. While the prompt is immediately ready for the next command. This allows you to continue working in the shell without waiting for the command to complete. It is possible to use `&` as a separator:
+
+```bash
+$ sleep 5 & pstree $$
+bash─┬─pstree
+     └─sleep
+```
+
+In the above example `sleep 5` command runs in the background and the output of `pstree $$` is returned immediately. Several commands can be placed into background:
+
+```bash
+$ sleep 5 & sleep 5 & pstree $$
+bash─┬─pstree
+     └─2*[sleep]
+```
+
+Each command runs in its own subshell (in general), and the shell does not wait for either to complete before continuing. For the above examples, only one shell process `bash` is present in the above examples, this is due to optimization of simple commands.
+
+Here are several practical aspects of running commands in the background:
+
+- **Concurrency**: Start multiple tasks simultaneously. This is useful for tasks that are independent and can run concurrently without affecting each other.
+
+- **Non-blocking Execution**: When you have a command that takes a long time to complete, and you don’t need the results immediately, you can run it in the background and continue using your terminal for other tasks.
+
+- **Scripting**: In scripts, you might want to start a process that runs in the background and doesn’t block the execution of subsequent commands.
+
+When running commands in the background, their **standard input** is usually closed immediately. If they try to read from **standard input**, they will receive an end-of-file. Also, output is not available unless redirected to a file. Command **exit code** is also not immediately accessible, the immediately returned **exit code** is a command submission status.
+
+<!-- SUBSECTION -->
+## Grouping of commands
+[Back to Top](#contents)
+
+Several commands can be grouped with `{}`. The commands within `{}` must be separated by semicolons or newlines, and there should be a space after the opening brace `{` and before the closing brace `}`. The closing brace must be followed by a semicolon or a newline. Grouped commands are executed in the current shell context, not a subshell (child shell of the current shell). This grouping can be used to redirect the **standard output** from all commands inside `{}`, modify and create variables, group `&&` and `||` separators.
+
+In the example below `{}` grouping is used to first create a directory if it doesn't exist and create a file inside it:
+
+```bash
+$ rm -rf versions
+$ { [ -d versions ] && touch versions/README.MD ; } || { mkdir versions ; touch versions/README.MD ; }
+$ ls versions/
+README.MD
+$ rm versions/README.MD
+$ { [ -d versions ] && touch versions/README.MD ; } || { mkdir versions ; touch versions/README.MD ; }
+$ ls versions/
+README.MD
+```
+
+Grouping with `{}` can be used to group commands within given shell, no subshells are created. In contrast, using `()` for grouping will in general (except simple commands that can be optimized out) with execute commands inside `()` in subshell:
+
+Example of `()` grouping with simple command (no subshell process):
+
+```bash
+$ ( sleep 5 ) & pstree $$
+bash─┬─pstree
+     └─sleep
+```
+
+For a command that can't be directly optimized, subshell will be used:
+
+```bash
+$ ( sleep 5 ; sleep 5 ) & pstree $$
+bash─┬─bash───sleep
+     └─pstree
+```
+
+Subshell grouping can be also nested:
+
+```bash
+$ ( (sleep 5; sleep 5) & sleep 5 ; sleep 5 ) & pstree $$
+bash─┬─bash─┬─bash───sleep
+     │      └─sleep
+     └─pstree
+```
+
+Note, in the above examples `&` was used to place commands into background.
+
+Subshells in `bash` create a separate child process for the shell environment. When you use a subshell (by enclosing commands within parentheses `( )`), you essentially create a new instance of the current shell that is a child of the parent shell. The subshell is a duplicate of the parent shell at the time it is created, including environment variables and the current working directory. Any changes made inside the subshell do not affect the parent shell. The return status of the last command executed in the subshell is returned as the exit status of the subshell. Subshells are used in several common scenarios:
+
+- **Temporary Environment Changes**: For example, temporarily change the current working directory temporarily without affecting the parent shell's working directory.
+
+   ```bash
+   $ echo $SHELL
+   /bin/bash
+   $ (SHELL=zsh; echo $SHELL)
+   zsh
+   $ echo $SHELL
+   /bin/bash
+   ```
+
+- **Parallel Execution**: Execute commands in parallel without waiting for them to finish in the current shell. In this case subshell syntax is not required, but it makes command more explicit.
+
+- **Complex Command Evaluation**: When a command substitution needs several commands to be executed, a subshell groups them together.
+
+- **Pipeline Execution**: Each command in a pipeline runs in a subshell. This is the default behavior in `bash`, which is why variables set in a pipeline do not persist after the pipeline completes.
+
+Using subshell `()` grouping can be more resource-intensive than using built-in `{}` grouping because creating a new process is more expensive than just grouping commands.
+
+
+<!-- SECTION -->
+# Redirections
+[Back to Top](#contents)
+
+In `bash`, file descriptors are used to control input and output from a shell script. By default, every process has at least three file descriptors open:
+
+- `0` - **standard input** (stdin)
+- `1` - **standard output** (stdout)
+- `2` - **standard error** (stderr)
+
+Here is an example command that uses these file descriptors to show a dialog box and return the entered name:
+
+```bash
+$ name=$(whiptail --inputbox "Enter name" 8 32 --title "Name query" 3>&1 1>&2 2>&3)
+```
+
+Notation `>&` is used to redirect one file descriptor to another. `3>&1 1>&2 2>&3` manipulates (swaps **standard output** and **standard error**) file descriptors.
+
+- `3>&1`: Creates a new (temporary) file descriptor, `3`, and makes it a duplicate of the **standard output** (`1`).
+- `1>&2`: Redirects the **standard output** (`1`) to the **standard error** (`2`). After this redirection, anything that would normally go to stdout now goes to stderr.
+- `2>&3`: Redirects the **standard error** (`2`) to file descriptor `3`. `3` was pointed to `1` in the first step, so now, `1` and `2` are swapped.
+
+This swapping is performed since `whiptail` outputs the entered input to the **standard error** (`2`), not **standard output** (`1`).
+Without the redirections, `name` would be empty, because all the actual output would go to stderr and would not be captured by `$()`. 
+
+## Standard redirections
+[Back to Top](#contents)
+
+- **Standard Output Redirection (`>` and `>>`)**:
+   Redirects the output of a command to a file. Using `>` will overwrite the file if it exists, while `>>` will append to it.
+   ```bash
+   $ echo "Section 1" > text.txt
+   $ echo "Section 2" >> text.txt
+   $ echo "Section 3" >> text.txt
+   ```
+
+- **Standard Input Redirection (`<`)**:
+   Takes the content of a file and uses it as the input to a command.
+   ```bash
+   $ grep "Section" < text.txt
+   ```
+
+- **Standard Error Redirection (`2>` and `2>>`)**:
+   Redirects the error messages output by a command to a file.
+   ```bash
+   $ ls file01.txt 2> error.txt 
+   $ ls file02.txt 2>> error.txt 
+   ```
+
+- **Combining Output and Error Redirection (`&>`, `&>>`)**:
+   Redirects both standard output and standard error to the same file.
+   ```bash
+   $ ls text.txt file01.txt file02.txt &> error.txt
+   ```
+
+## Process substitution
+[Back to Top](#contents)
+
+Process substitution enables the output of a process (or processes) to appear as a temporary file at a unique filename (often in `/dev/fd` on modern systems). This allows tools that can only read from files or write to files to interact with the output or input of another process.
+
+**Input Process Substitution (`<()`)** 
+
+This form is used when you want the output of a command to be read like a file by another command.
+When you use `<()`, the shell replaces that expression with the path to a file that provides the output of the command inside the `()` as if it were a file.
+For example, compare the contents of two directories using `diff`:
+
+```bash
+$ mkdir -p dir1/file{1..4}
+$ mkdir -p dir2/file{3..6}
+$ diff dir1 dir2
+Only in dir1: file1
+Only in dir1: file2
+Common subdirectories: dir1/file3 and dir2/file3
+Common subdirectories: dir1/file4 and dir2/file4
+Only in dir2: file5
+Only in dir2: file6
+$ diff --side-by-side <(ls dir1) <(ls dir2)
+file1							      <
+file2							      <
+file3								file3
+file4								file4
+							      >	file5
+							      >	file6
+```
+
+Here, `ls dir1` and `ls dir2` commands are each run in their own subshell, with their outputs sent to named pipes. These pipes are passed to `diff`, so it can compare the directory listings as if they were files.
+
+**Output Process Substitution (`>()`)** 
+
+Treat the output of a command as if it were a file.
+
+```bash
+$ echo "Hello, ${USER}!" > >(grep "Hello")
+Hello, nstu!
+```
+Here the output of `echo "Hello, ${USER}!"` is redirected not to the standard output but into the input of another command specified within `>(...)`. The above is equivalent to:
+
+```bash
+$ echo "Hello, ${USER}!" | grep "Hello"
+Hello, nstu!
+```
+
+Here is another example of output process substitution:
+
+```bash
+$ seq 1 10 | tee >(grep -E "^[0-9]*[02468]$" > even.txt) >(grep -E "^[0-9]*[13579]$" > odd.txt) > /dev/null
+$ cat {even,odd}.txt
+2
+4
+6
+8
+10
+1
+3
+5
+7
+9
+```
+
+**When to Use Process Substitution**
+
+Use process substitution when you need to:
+
+- Use multiple commands' outputs as files for comparison, merging, or other file-based operations without creating temporary files.
+- Feed the output of a sequence of piped commands into the input of another command that expects a file.
+- Work with commands that do not accept standard input/output redirections.
+
+It is most useful when working with commands that expect file names as arguments and you want to use the output of another command instead.
+
+**Limitations**
+
+- Not all shells support process substitution (e.g., `dash` and some instances of `sh` do not).
+- Process substitution may not work as expected when used in environments where `/dev/fd` is not properly implemented, like in some older Unix systems or restricted environments.
+- Since process substitution creates a subshell, any changes to variables within that subshell will not be reflected in the parent shell.
+
+Process substitution is one of those advanced features in `bash` that can significantly streamline complex shell scripting tasks and is a testament to the flexibility of the shell environment.
+
+Process substitution is often categorized with redirection because it involves directing the input or output of a command to or from a process rather than a file. However, it's a distinct feature that uses named pipes or temporary files in the background to allow processes to communicate.
+
+Process substitution is like a more advanced form of redirection, integrating the concept of inter-process communication. While standard redirection deals primarily with static files, process substitution is dynamic, allowing for real-time data exchange between processes as if they were files. This can be particularly powerful in shell scripting for creating efficient data processing workflows that would otherwise require more complex and potentially less efficient methods.
+
+## Here documents and here strings
+[Back to Top](#contents)
+
+**Here Document (`<<`)**:
+   Allows the creation of a multiline string from the command line and redirects it as an input (file) to a command.
+
+   ```bash
+   $ cat <<EOF
+   > The quick brown fox
+   > jumps over the lazy dog
+   > EOF
+   The quick brown fox
+   jumps over the lazy dog
+   ```
+
+Other string can be used:
+
+   ```bash
+   $ cat <<STRING
+   > The quick brown fox
+   > jumps over the lazy dog
+   > STRING
+   The quick brown fox
+   jumps over the lazy dog
+   ```
+
+Quotations can be used not to allow variable substitution:
+
+   ```bash
+   $ animal=fox
+   $ cat <<'EOF'
+   > The quick brown ${animal}
+   > jumps over the lazy dog
+   > EOF
+   The quick brown ${animal}
+   jumps over the lazy dog
+   ```
+
+Can also use to output to a file:
+
+   ```bash
+   $ animal=fox
+   $ cat <<'EOF'>>file.txt
+   > The quick brown ${animal}
+   > jumps over the lazy dog
+   > EOF
+   The quick brown ${animal}
+   jumps over the lazy dog
+   $ cat file.txt 
+   The quick brown ${animal}
+   jumps over the lazy dog
+   ```
+
+**Here String (`<<<`)**:
+   A variant of here documents, which allows a single line of input to be redirected to a command.
+   ```bash
+   $ grep "fox" <<< "The quick brown fox jumps over the lazy dog"
+   ```
+
+## Advanced redirections
+[Back to Top](#contents)
+
+**Copying File Descriptors (`>&`, `<&`)**:
+   
+   Duplicates one file descriptor, making it copy the output or input of another.
+
+   ```bash
+   $ exec 3>&1   # Duplicates stdout to fd 3
+   $ command >&3 # Redirects output of command to fd 3 (stdout)
+   ```
+
+**Moving File Descriptors (`>&-`, `<&-`)**:
+
+   Closes the specified file descriptor.
+
+   ```bash
+   $ exec 3>&1 # Duplicates stdout to fd 3
+   $ exec 3>&- # Closes fd 3
+   ```
+
+**Redirection with exec**:
+
+   Redirects input or output globally for the shell or script. This affects all subsequent commands.
+
+   ```bash
+   $ exec > outputfile # All subsequent commands' stdout will go to outputfile
+   $ exec 2> errorfile # All subsequent commands' stderr will goto errorfile
+   ```
+
+<!-- SECTION -->
+# Script files
+[Back to Top](#contents)
+
+Scripts are files that contain a combination of one or several commands. A powerful feature of `bash` is the ability to use system commands directly, without the need for a wrapper, as is required in other languages like `Python`. The first line in a script is used to indicate the interpreter for the script, such as `bash`. The special symbol `#!`, known as **shebang**, precedes the full path to the interpreter, for example, `#!/bin/bash` (usage of the full path is not required, but it is a good practice or use `/usr/bin/env bash`). The hash symbol `#` on subsequent lines denotes a comment. It is common practice to define variables and functions before the main body of the script. While not required, using the `.sh` file extension is considered good practice, as it indicates that the file is a script. The typical script file layout is shown below:
+
+```bash
+#!/bin/bash
+
+# customize shell
+set -e
+
+# define variables and process input arguments
+name="$1"
+if [ -z "$name" ]; then
+   name="${USER}@${HOSTNAME}"
+fi
+
+# define functions
+function hello() {
+   echo "hello from ${SHELL}, ${1}!"
+   return 0
+}
+function goodbye() {
+   echo "goodbye!"
+   return 0
+}
+
+# execute script
+hello "${name}"
+
+# optional 'exception handling'
+trap goodbye EXIT
+
+# exit
+exit 0
+```
+
+Note, the `trap` command in `bash` is used to catch signals and other system events and then execute a command or a list of commands when one of these events occurs. 
+
+The above script can be executed (here commands are processed in a batch) even without creating a file which might be useful in some situations:
+
+```bash
+$ bash << 'EOF'
+#!/bin/bash
+
+# customize shell
+set -e
+
+# define variables and process input arguments
+name="$1"
+if [ -z "$name" ]; then
+   name="${USER}@${HOSTNAME}"
+fi
+
+# define functions
+function hello() {
+   echo "hello from ${SHELL}, ${1}!"
+   return 0
+}
+function goodbye() {
+   echo "goodbye!"
+   return 0
+}
+
+# execute script
+hello "${name}"
+
+# optional exception handling
+trap goodbye EXIT
+
+# exit
+exit 0
+EOF
+hello from /bin/bash, nstu@nstu-course!
+goodbye!
+```
+
+Note, here a special form of input stream (here-document) is used to is passed into `bash` command. All text between `<<'EOF' ... EOF` is considered as a file content. The first `EOF` is in single quotes to avoid substitutions (compare the result of with and without quotes). Different streams and redirections will be explored in more details later.
+
+Normally scripts are used for automation and are not intended to be used only one time as above. In this case the script is more convenient to store in a file with conventional `.sh` extension. Create a `script.sh` file.
+
+```bash
+$ cat > script.sh << 'EOF'
+#!/bin/bash
+
+# customize shell
+set -e
+
+# define variables and process input arguments
+name="$1"
+if [ -z "$name" ]; then
+   name="${USER}@${HOSTNAME}"
+fi
+
+# define functions
+function hello() {
+   echo "hello from ${SHELL}, ${1}!"
+   return 0
+}
+function goodbye() {
+   echo "goodbye!"
+   return 0
+}
+
+# execute script
+hello "${name}"
+
+# optional exception handling
+trap goodbye EXIT
+
+# exit
+exit 0
+EOF
+```
+
+Now `bash` command can be used to execute the script file:
+
+```bash
+$ bash script.sh
+hello from /bin/bash, nstu@nstu-course!
+goodbye!
+```
+
+A more convenient and preferred method is to grant execute permissions to the script file and then run it directly from the command line:
+
+```bash
+$ chmod u+x script.sh
+$ ./script.sh
+hello from /bin/bash, nstu@nstu-course!
+goodbye!
+```
+
+For debugging it might be useful to use `set` command with `-x` flag (see `man set` for details). `shellcheck` command can be used to (statically) check script files **before execution**. Already mentioned `trap` command can be used to catch different signals (see `trap -l` for details).
+
+```bash
+$ shellcheck script.sh
+```
+
+Large and complex scripts in `bash` might be hard to follow. Below are some things to consider when writing scripts:
+
+- **Complexity**: If the script is becoming complex, especially with many loops, conditionals, and function calls, more advanced scripting language syntax and language features may make the script easier to write and maintain.
+
+- **Portability**: `bash` scripts are great for Unix-like environments, but they can be less portable to systems like Windows without additional software. Consider using cross-platform scripting tools that can be run unchanged across different operating systems.
+
+- **Functionality**: `bash` has a limited range of built-in functions, and while you can call external programs and utilities, doing so can be less efficient and more complex than using a language with a rich standard library.
+
+- **Error Handling**: Error handling is not particularly robust. Consider using a different scripting tool if advanced error handling is desired.
+
+- **Performance**: While `bash` can be suitable for simple tasks, other tools may perform better with CPU-intensive tasks due to its ability to use pre-compiled code and optimized libraries.
+
+- **Readability and Maintenance**: Some scripting tools are often easier to read and maintain, especially for those who are not familiar with advanced `bash` syntax.
+
+- **Community and Libraries**: A scripting tool can have a large community and a wealth of libraries for nearly every task imaginable, from web development to data analysis. If your `bash` script is starting to require more external tools or complex data processing it might be a signal to use a different tool.
+
+- **User Interaction**: If your script requires complex user interaction (advanced CLIs or GUIs) it might be a signal to use a different tool.
+
+- **String Manipulation and Data Processing**: While `bash` can handle simple string manipulation and data processing, other tools might have more powerful string methods and data structures.
+
+In general, if your script is moving beyond file manipulation, simple task automation, and environment setup, and it starts to involve more complex data types, structures, and logic flows, you should consider another higher-level scripting language.
+
+For smaller scripts or when working within a system that is highly dependent on shell environments or for simple file and system operations, `bash` may still be the preferable choice. In practice, it's also common to see hybrid solutions where `bash` scripts call other programs for more complex tasks. For instance, you can leverage `Python` for complex math operations within a `bash` script:
+
+```bash
+$ function calculator () {
+>    python -c "from math import *; print($1)"
+> }
+$ calculator "sqrt(4.0)"
+2.0
+$ echo $((2.0 + $(calculator "sqrt(4.0)")))
+4.0
+```
+
+Make sure to add comments where it makes sense (describe what your script is for, comment complex sections). This will improve script readability and maintenance. You also should test scripts in different environments with different input to ensure they work as expected.
+
+`bash` scripts also allow different configuration and customization options:
+
+- **Shell Options**: Use the `set` command to change shell attributes and options.
+
+- **Environment Variables**: Use environment variables to modify the behavior of your script without changing the code, e.g. set an environmental variable to a different value prio to script execution.
+
+- **Configuration Files**: Source external configuration files that define variables and functions.
+
+- **Command Line Arguments**: Passing different command line arguments to your script can change its behavior. You can parse options and arguments using `getopts` or manually iterating over `$@`.
+
+- **Aliases and Functions**: Define aliases and functions to simplify complex commands or to add shortcuts for common operations.
+
+- **Interactive Prompts**: Use `read` or tools like `dialog` or `whiptail` to create interactive scripts that ask for user input.
+
+<!-- SECTION -->
+# Brace expansion
+[Back to Top](#contents)
+
+Modern shells support the mechanism of brace expansion. Several types of brace expansion are available. `bash` brace expansions are automatically expanded before any other kind of expression. Brace expansions allows to generate different file names or sequences of strings. One or several expressions can be used together and even nested.
+
+Brace expansion expression with numbers has the following form:
+
+```bash
+$ {START..END..[INCREMENT]}
+```
+
+with `START` beginning the start number of the sequence, `END` being the end number of the sequence and an optional `INCREMENT` with default value of `1` if omitted. For numbers, brace expansion allows you to create a range of values that can be used for iteration or to generate file names. One or more such expressions can be used.
+
+Generate sequence of numbers from 0 to 100 with a step of 5:
+
+```bash
+$ echo {0..100..5}
+0 5 10 15 20 25 30 35 40 45 50 55 60 65 70 75 80 85 90 95 100
+```
+
+When generating a reverse sequence by setting a `START` value greater than `END`, the sequence descends. If `INCREMENT` is omitted, it defaults to `-1`, creating a decrementing sequence:
+
+You can also generate a sequence in reverse order by making the `START` larger than the `END` (`INCREMENT` should be positive):
+
+```bash
+$ echo {100..0..5}
+100 95 90 85 80 75 70 65 60 55 50 45 40 35 30 25 20 15 10 5 0
+```
+
+Generate a sequence with numbers padded with zeroes to ensure a fixed string length:
+
+```bash
+$ echo {000..100..5}
+000 005 010 015 020 025 030 035 040 045 050 055 060 065 070 075 080 085 090 095 100
+```
+
+Generate file names using brace expansion with numbers:
+
+```bash
+$ touch file_{1..5}
+$ ls file_*
+file_1  file_2  file_3  file_4  file_5
+$ rm file_{1..5}
+```
+
+Sequences of alphabetic characters can be generated in the following way:
+
+```bash
+$ echo {a..z}
+a b c d e f g h i j k l m n o p q r s t u v w x y z
+```
+
+Similarly, for uppercase letters:
+
+```bash
+$ echo {A..Z}
+A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+```
+
+And for reverse order:
+
+```bash
+$ echo {z..a}
+z y x w v u t s r q p o n m l k j i h g f e d c b a
+```
+
+Unlike expansion with numbers, `INCREMENT` is not available for letters.
+
+Several comma separated items inside braces are also expanded:
+
+```bash
+$ echo {a,b,c,d,e}
+a b c d e
+```
+
+All these kinds of expansions can be combined. Note, no spaces should be used in brace expansion. For example, one can generate different file names:
+
+```bash
+$ touch {vector,matrix}_{a..b}_{1..2}
+$ ls vector_?_?
+vector_a_1  vector_a_2  vector_b_1  vector_b_2
+$ ls matrix_?_?
+matrix_a_1  matrix_a_2  matrix_b_1  matrix_b_2
+$ rm {vector,matrix}_{a..b}_{1..2}
+```
+
+Create nested directories:
+
+```bash
+$ mkdir -p project/{src,bin,doc} && cd project && tree
+.
+├── bin
+├── doc
+└── src
+$ cd .. && rm -r project
+```
+
+Create a backup file:
+
+```bash
+$ touch file
+$ cp file{,_backup}
+$ ls file{,_backup}
+file  file_backup
+$ rm file{,_backup}
+```
+
+Copy or move several files to a directory:
+```bash
+$ mkdir test
+$ touch file_{1..5}
+$ mv file_{1..5} test
+$ ls test
+file_1  file_2  file_3  file_4  file_5
+$ rm -r test
+```
+
+Rename a file:
+
+```bash
+$ touch file
+$ mv {,old_}file
+$ ls old_file
+$ rm old_file
+```
+
+Brace expansion can significantly reduce the time and effort required to generate multiple items or iterate over sequences.
+
+<!-- SECTION -->
+# Wildcards
+[Back to Top](#contents)
+
+Another powerful feature of shell scripting is pattern matching with wildcards, which are symbols that represent one or more characters in file names or text. The shell interprets these wildcards to expand file names or filter text. The most commonly used wildcards are `*`, `?`, and `[]`.
+
+The `*` wildcard represents zero or more characters, allowing it to match any string of characters:
+
+```bash
+$ touch file_{a..b}_{1..2}.txt
+$ ls file*.txt
+file_a_1.txt  file_a_2.txt  file_b_1.txt  file_b_2.txt
+$ rm file_{a..b}_{1..2}.txt
+```
+
+The `?` wildcard is used to represent a single character, meaning it matches any filename with any character in that specific position:
+
+```bash
+$ touch file_{a..b}_{1..2}.txt
+$ ls file_?_?.txt
+file_a_1.txt  file_a_2.txt  file_b_1.txt  file_b_2.txt
+$ rm file_{a..b}_{1..2}.txt
+```
+
+The `[]` wildcard matches one of any characters enclosed within the brackets. A range of characters can be specified using the `-` symbol:
+
+```bash
+$ touch file_{a..b}_{1..2}.txt
+$ ls file_[ab]_[12].txt
+file_a_1.txt  file_a_2.txt  file_b_1.txt  file_b_2.txt
+$ ls file_[a-b]_[1-2].txt
+file_a_1.txt  file_a_2.txt  file_b_1.txt  file_b_2.txt
+$ rm file_{a..b}_{1..2}.txt
+```
+
+To create a pattern that excludes specific characters, place a `!` or `^` symbol at the beginning of the character list inside the brackets:
+
+```bash
+$ touch file_{a..b}_{1..2}.txt
+$ ls file_[^a]_[^1].txt
+file_b_2.txt
+$ rm file_{a..b}_{1..2}.txt
+```
+
+<!-- SECTION -->
+# Globbing (pathname expansion)
+[Back to Top](#contents)
+
+Globbing is a way to specify patterns matching to groups of filenames. Brace expansion and wildcards can be used for globbing. The matching process has the following steps:
+
+- **Wildcard Expansion**: In `bash`, wildcard patterns are expanded to match filenames, and brace expansions occur before command execution. This process ensures that commands receive actual filenames, not the original patterns or braces.
+
+- **No Matches**: When a glob pattern finds no matching filenames in `bash`, it remains as is. However, enabling the `nullglob` option removes unmatched patterns, resulting in a null string. Conversely, with `failglob` enabled, unmatched patterns cause the command to fail.
+
+- **Dot Files**: Dot files (those beginning with `.`) are not matched by the `*` or `?` wildcards unless the pattern explicitly includes the dot.
+
+- **Non-Recursive**: Glob patterns, by default, do not extend their search to subdirectories.
+
+- **Case Sensitivity**: Matching patterns are case-sensitive by default. This behavior can be changed by setting the `nocaseglob` shell option.
+
+- **Extended Globbing**: `bash` supports extended globbing, which allows more complex patterns with operators like `?(pattern)`, `*(pattern)`, `+(pattern)`, `@(pattern)`, and `!(pattern)` if the `extglob` shell option is enabled (`shopt -s extglob`).
+
+Also, `~` in expanded to a `USER` home directory name.
