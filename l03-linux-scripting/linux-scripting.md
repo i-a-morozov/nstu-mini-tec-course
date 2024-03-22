@@ -832,7 +832,7 @@ Sourcing is useful for defining functions, setting environment variables, or mod
 
 ```bash
 $ cat > definitions.sh << 'EOF'
->#!/bin/bash
+#!/bin/bash
 export STATUS=1
 function calculator () {
    python -c "from math import *; print($1)"
