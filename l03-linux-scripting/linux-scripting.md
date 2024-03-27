@@ -18,10 +18,6 @@
   - [Here documents and here strings](#here-documents-and-here-strings)
   - [Advanced redirections](#advanced-redirections)
 - [Script files](#script-files)
-   - [Script file layout](#script-file-layout)
-   - [Script execution](#script-execution)
-   - [Script sourcing](#script-sourcing)
-   - [Scripting tips](#scripting-tips)
 - [Pathname expansion](#pathname-expansion)
    - [Brace expansion](#brace-expansion)
    - [Wildcards](#wildcards)
@@ -55,7 +51,7 @@
    - [Input](#input)
    - [Parsing arguments and options](#parsing-arguments-and-options)
 - [Managing scripts, aliases, and other](#managing-scripts-aliases-and-other)
-   - [A good place to put scripts](#a-good-place-to-put-scripts)
+   - [A good place to put your scripts](#a-good-place-to-put-your-scripts)
    - [Aliases vs functions vs scripts](#aliases-vs-functions-vs-scripts)
    - [.bashrc](#bashrc)
 
@@ -680,10 +676,6 @@ Can also use to output to a file:
 # Script files
 [Back to Top](#contents)
 
-<!-- SUBSECTION -->
-## Script file layout
-[Back to Top](#contents)
-
 Scripts are files that contain a combination of one or several commands. A powerful feature of `bash` is the ability to use system commands directly, without the need for a wrapper, as is required in other languages like `Python`. The first line in a script is used to indicate the interpreter for the script, such as `bash`. The special symbol `#!`, known as **shebang**, precedes the full path to the interpreter, for example, `#!/bin/bash` (usage of the full path is not required, but it is a good practice or use `/usr/bin/env bash`). The hash symbol `#` on subsequent lines denotes a comment. It is common practice to define variables and functions before the main body of the script. While not required, using the `.sh` file extension is considered good practice, as it indicates that the file is a script. The typical script file layout is shown below:
 
 ```bash
@@ -722,10 +714,6 @@ exit 0
 ```
 
 Note, the `trap` command in `bash` is used to catch signals and other system events and then execute a command or a list of commands when one of these events occurs. 
-
-<!-- SUBSECTION -->
-## Script execution
-[Back to Top](#contents)
 
 The above script can be executed (here commands are processed in a batch) even without creating a file which might be useful in some situations:
 
@@ -819,35 +807,6 @@ $ ./script.sh
 hello from /bin/bash, nstu@nstu-course!
 goodbye!
 ```
-<!-- SUBSECTION -->
-## Script sourcing
-[Back to Top](#contents)
-
-Script execution is performed with `./script.sh` syntax, script sourcing (making staff like variables and functions defined in script available in the current shell) is performed with `source script.sh` or `. script.sh` syntax. The contents of the script are available to use in the current shell, while script execution is performed in a separate shell session.
-
-If a script is sourced in another script, the contents of the sourced script is available to use in the current script (similar to `include` in C).
-
-
-Sourcing is useful for defining functions, setting environment variables, or modifying the current shell environment.
-
-```bash
-$ cat > definitions.sh << 'EOF'
-#!/bin/bash
-export STATUS=1
-function calculator () {
-   python -c "from math import *; print($1)"
-}
-EOF
-$ . definitions.sh
-$ echo $STATUS
-1
-$ calculator "sqrt(2)"
-1.4142135623730951
-```
-
-<!-- SUBSECTION -->
-## Scripting tips
-[Back to Top](#contents)
 
 For debugging it might be useful to use `set` command with `-x` flag (see `man set` for details). `shellcheck` command can be used to (statically) check script files **before execution**. Already mentioned `trap` command can be used to catch different signals (see `trap -l` for details).
 
@@ -2621,124 +2580,216 @@ Use `return` to exit a function with a status code. To return data, use `echo` o
 
 
 - **`getopt`**:
+   Ensure `getopt` is installed on your system. It's usually pre-installed on most Unix-like systems.
 
-   ```bash
-   #!/bin/bash
+2. **Script Implementation**:
 
-   # Three options: -a, -b, -c, and corresponding long forms: --option-a, --option-b, --option-c
-   # : and :: signify that the option requires an argument (option value)
-   # All input arguments are stored in "$@" and are passed to getopt
-   # The result in substituded into OPTIONS
-
-   OPTIONS=$(getopt -o ab:c:: --long option-a,option-b:,option-c:: -- "$@")
-
-   # Check the last commans execution status and exit on failure
-   # It is also possible to use "set -e" to exit on error
-
-   if [ $? != 0 ] ; then echo "Failed parsing options" >&2 ; exit 1 ; fi
-   
-   # Echo the parsed options
-   # [options] -- [arguments]
-
-   echo "${OPTIONS}"
-  
-   # Update iput arguments
-
-   echo "Initial input: ${@}"
-   eval set -- "${OPTIONS}"
-   echo "Parsed input : ${@}"
-
-
-   # Default option values
-  
-   declare opt_a=false
-   declare opt_b=
-   declare opt_c=
-
-   # Set option values
-
-   while true; do
-     case "$1" in
-       -a | --option-a ) opt_a=true; shift 1 ;;
-       -b | --option-b ) opt_b="$2"; shift 2 ;;
-       -c | --option-c ) opt_c="$2"; shift 2 ;;
-       -- ) shift; break ;;
-       * ) break ;;
-     esac
-   done
-
-   # Echo option values
-
-   echo "opt_a: ${opt_a}"
-   echo "opt_b: ${opt_b}"
-   echo "opt_c: ${opt_c}"
-   
-   # ${@} now contains only arguments
-
-   echo "args: ${@}"
-
-   # Execute main script
-
-   exit 0
-   ```
-
-   ```bash
-   $ ./script.sh -a -b 0 -c=1 file
-   -a -b '0' -c '=1' -- 'file'
-   Initial input: -a -b 0 -c=1 file
-   Parsed input : -a -b 0 -c =1 -- file
-   opt_a: true
-   opt_b: 0
-   opt_c: =1
-   file
-   ```
-
-- **`getopts` (`bash` build-in)**:
-
-   ```bash
-   #!/bin/bash
+    ```bash
+    #!/bin/bash
     
-   # Default option values
+    # Parse options
+    OPTS=`getopt -o ab:c:: --long option-a,option-b:,option-c:: -- "$@"`
+    
+    if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
+    
+    eval set -- "$OPTS"
+    
+    # Defaults
+    opt_a=false
+    opt_b=
+    opt_c=
+    
+    while true; do
+      case "$1" in
+        -a | --option-a ) opt_a=true; shift ;;
+        -b | --option-b ) opt_b="$2"; shift 2 ;;
+        -c | --option-c ) opt_c="$2"; shift 2 ;;
+        -- ) shift; break ;;
+        * ) break ;;
+      esac
+    done
+    
+    # Rest of the script goes here
+    ```
 
-   declare opt_a=false
-   declare opt_b=
-   declare opt_c=
-   
-   while getopts ":ab:c:" opt; do
-     case ${opt} in
-       a )
-         opt_a=true
-         ;;
-       b )
-         opt_b=${OPTARG}
-         ;;
-       c )
-         opt_c=${OPTARG}
-         ;;
-       \? )
-         echo "Invalid option: $OPTARG" 1>&2
-         exit 1
-         ;;
-       : )
-         echo "Invalid option: $OPTARG requires an argument" 1>&2
-         exit 1
-         ;;
-     esac
-   done
-   shift $((OPTIND -1))
+    - Customize the options `-a`, `-b`, `-c` according to your script requirements.
+    - The `--long` options provide a long form of options, e.g., `--option-a`.
+    - The `:` and `::` in the option string signify whether an option requires an argument.
+    - Use `shift` to discard the processed options and their arguments.
 
-   echo "opt_a: ${opt_a}"
-   echo "opt_b: ${opt_b}"
-   echo "opt_c: ${opt_c}"
+- **`getopts`**:
 
-   echo "args: ${@}"
-   ```
+1. **Script Implementation**:
+
+    ```bash
+    #!/bin/bash
+    
+    # Defaults
+    opt_a=false
+    opt_b=
+    opt_c=
+    
+    while getopts ":ab:c:" opt; do
+      case ${opt} in
+        a )
+          opt_a=true
+          ;;
+        b )
+          opt_b=${OPTARG}
+          ;;
+        c )
+          opt_c=${OPTARG}
+          ;;
+        \? )
+          echo "Invalid option: $OPTARG" 1>&2
+          exit 1
+          ;;
+        : )
+          echo "Invalid option: $OPTARG requires an argument" 1>&2
+          exit 1
+          ;;
+      esac
+    done
+    shift $((OPTIND -1))
+    
+    # Rest of the script goes here
+    ```
+
+    - Customize the options `-a`, `-b`, `-c` according to your script requirements.
+    - The colon `:` after the options in the `getopts` string signifies whether an option requires an argument.
+    - Use `${OPTARG}` to access the argument passed to an option.
+
+### Usage:
+
+You can run these scripts like any other Bash script, passing options and arguments as needed:
+
+```bash
+./script.sh -a -b value -c
+```
+
+These scripts provide a basic framework for parsing arguments and options. You can extend them further based on your specific needs.
+
+<!-- SECTION -->
+# Managing scripts, aliases, and other
+[Back to Top](#contents)
+
+<!-- SUBSECTION -->
+## A good place to put your scripts
+[Back to Top](#contents)
+
+- Execute (or source) scripts from the command line
 
    ```bash
-   $ ./script.sh -a -b 0 -c=1 file
-   opt_a: true
-   opt_b: 0
-   opt_c: =1
-   args: file
+   $ ./<script.sh> # execute or bash <path>/<script.sh`>
+   $ . <script.sh> # source
    ```
+
+- Add script directories `$PATH` (export in command line or in `.bashrc`)
+
+   ```bash
+   $ export PATH=<path>/<script.sh>:$PATH
+   $ <script.sh>
+   ```
+
+- Keep scripts localy and create links (possibly under different names)
+
+- Place scripts in `/usr/local/bin`
+
+<!-- SUBSECTION -->
+## Aliases vs functions vs scripts
+[Back to Top](#contents)
+
+In `bash`, aliases, functions, and scripts serve similar purposes in that they allow you to bundle commands into reusable units, but they have different scopes and are used in different scenarios.
+
+- **Alias**:
+   - `alias` is a shortcut for a single command or a series of commands
+
+      ```bash
+      $ alias la
+      alias la='ls -A'
+      ```
+
+   - Typically defined in a user’s shell profile file, e.g in `.bashrc`
+
+   - Aliases are text substitutions, they are not sutable to handle arguments
+
+   - Aliases are can be affected by the current shell environment
+
+   - Use for simple command substitutions or for a quick shorthand for a long command
+
+- **Function**:
+
+   - Functions can accept arguments and contain complex logic
+
+   - Typically defined in a user’s shell profile file, e.g in `.bashrc`, or in other files that are sourced to make functions avaliable
+
+   - Functions are executed in the current shell without spawning a new process
+
+   - They are suitable for sequences of commands that need to act like a single command and are too complex for an alias
+
+- **Script**:
+
+   - A script is a separate file which can be executed (program), can be as simple as a single command or as complex as a full-fledged application
+
+   - Scripts can accept arguments, use complex logic
+
+   - They run in a new shell process, meaning they don’t affect the current shell environment
+
+   - Scripts are useful for complex tasks and are easy to share and run on different systems
+
+   - They are the best option for automated tasks that need to be executed regularly or on multiple systems
+
+**When to Use Each**:
+
+- **Use an alias** when you want a shorthand for a command or a series of commands you frequently use. For example, `alias ll='ls -la'`.
+  
+- **Use a function** when you need something more complex than an alias but you don't want to leave the current shell context. Functions are powerful when you need to process arguments or when you need to include some logic before executing commands.
+
+- **Use a script** for standalone tasks that might be run independently of a shell session, potentially by different users or systems. If the task is complex and involves a lot of logic or if you want to distribute the command as a tool, a script is the way to go.
+
+Start with an alias for simplicity, move to a function if you need more complexity or parameters, and create a script when the task becomes sufficiently complex or when it needs to be portable.
+
+<!-- SUBSECTION -->
+## .bashrc
+[Back to Top](#contents)
+
+The `.bashrc` (`rc` = run commands) file is a script that is executed whenever a new terminal session is started in interactive mode. It's a place where you can define and customize your shell environment.
+
+### What to place in `.bashrc`:
+
+- **Alias Definitions**: Shortcuts for long commands that you use frequently
+
+- **Function Definitions**: Custom functions for sequences of commands that you need to use regularly
+
+- **Environment Variables**: Such as `PATH` or custom variables that you want to be available in every session
+
+- **Prompt Customization**: Settings that change the appearance of your shell prompt (e.g., `PS1`)
+
+- **Command History Configuration**: Settings that affect the behavior of your command history (e.g., `HISTSIZE`, `HISTFILESIZE`, etc.)
+
+- **Shell Options**: Options that affect the behavior of the shell itself (e.g., `shopt` options in bash)
+
+### What not to place in `.bashrc`:
+
+- **Sensitive Information**: Passwords or any other sensitive data should not be stored in plain text
+
+- **Heavy Computation or Slow Commands**: Anything that can slow down the startup of your shell, such as heavy computations or commands that take a long time to execute
+
+- **Interactive Commands**: Commands that require user interaction should not be placed in `.bashrc` since it can prevent the shell from starting properly
+
+- **Session-Specific Commands**: Commands that are meant to run only once when a login shell starts should go into `.bash_profile` or `.profile`, not `.bashrc`
+
+- **Large Blocks of Application-Specific Configuration**: If you have a complex setup for a particular application, it's often better to source a separate script file
+
+### General Tips:
+
+- **Backup your .bashrc**: Before making changes, it's always a good idea to create a backup of your current `.bashrc`
+
+- **Comments**: Always comment your changes, so you or others can understand why a particular configuration was made
+
+- **Keep it Organized**: Group related settings and keep separate concerns well organized within the file
+
+- **Modular Approach**: Consider sourcing other scripts from your `.bashrc` for complex configurations (e.g., `source ~/my_bash_aliases.sh`)
+
+Changes to `.bashrc` won't take effect in current sessions until you source the file with `source ~/.bashrc` or open a new terminal.
 
