@@ -2505,7 +2505,7 @@ Use `return` to exit a function with a status code. To return data, use `echo` o
 # Input
 [Back to Top](#contents)
 
-- **`read`:
+- **`read`**:
 
    `read` is a built-in `bash` command that reads a line from the standard input (or from a file) and assigns it to a variable.
 
@@ -2588,7 +2588,7 @@ Use `return` to exit a function with a status code. To return data, use `echo` o
     #!/bin/bash
     
     # Parse options
-    OPTS=`getopt -o ab:c:: --long option-a,option-b:,option-c:: -- "$@"`
+    OPTS=$(getopt -o ab:c:: --long option-a,option-b:,option-c:: -- "$@"
     
     if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
     
