@@ -4,7 +4,7 @@
 - Why you need to learn Linux?
 - Why you need to learn Python?
 - Course contents review
-- Development environment setup
+- Development environment setup (exercise)
 
 <!-- SECTION  -->
 # Course contents
@@ -53,8 +53,8 @@
 [Back to Top](#course-contents)
 
 - `zsh`
-- `ssh` and remote management
 - `tmux`
+- `ssh` and remote management
 - File transfer and management (`scp`, `rsync`)
 - Services (`systemd`)
 - Some advanced commands (`sed`, `awk`, `xargs`, `parallel`, `gnuplot`)
@@ -98,7 +98,6 @@
 - Functional programming
 - Overloading
 - Data methods
-- SOLID
 
 <!-- SECTION  -->
 # Python (standard libraries)
@@ -176,7 +175,7 @@
 - Parallel python (threading, multiprocessing, concurrent.futures)
 - Git and GitHub (workflow, actions)
 - Python library and documentation (pyproject.toml, build, twine, pip, sphinx)
-- Python CI (testing, linting and profiling) (pylint, mypy, pytest, pytest-cov, scalene)
+- Python testing, linting and profiling (pylint, mypy, pytest, pytest-cov, scalene)
 - Symbolic computations (sympy, rubi)
-- Pandas, Polars, Dask and google sheets API
+- Pandas, Polars and Dask
 
