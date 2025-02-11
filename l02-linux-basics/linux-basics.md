@@ -1,45 +1,46 @@
 <!-- SECTION  -->
 # Contents
-- [Linux file system navigation](#linux-file-system-navigation)
+- [01-Linux file system description and navigation](#linux-file-system-description-and-navigation)
     - [Everything is a file](#everything-is-a-file)
     - [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
     - [Path (absolute and relative)](#path-absolute-and-relative)
     - [Relevant commands and examples](#relevant-commands-and-examples)
-- [File viewing and manipulation](#file-viewing-and-manipulation)
+- [02-File viewing and manipulation](#file-viewing-and-manipulation)
     - [File types](#file-types)
     - [Permissions](#permissions)
     - [Relevant commands and examples](#relevant-commands-and-examples-1)
-- [Getting help](#getting-help)
+- [03-Getting help](#getting-help)
     - [Is command build-in](#is-command-build-in)
     - [Relevant commands and examples](#relevant-commands-and-examples-2)
-- [Package management](#package-management)
+- [04-Package management](#package-management)
     - [Package](#package)
     - [Relevant commands and examples](#relevant-commands-and-examples-3)
-- [User management](#user-management)
+- [05-User management](#user-management)
     - [Common tasks](#common-tasks)
     - [Resources control](#resources-control)
     - [Relevant commands and examples](#relevant-commands-and-examples-4)
-- [Processes and jobs management](#processes-and-jobs-management)
+- [06-Processes and jobs management](#processes-and-jobs-management)
     - [Processes](#processes)
     - [Jobs](#jobs)
     - [Relevant commands and examples](#relevant-commands-and-examples-5)
-- [System monitoring](#system-monitoring)
+- [07-System monitoring](#system-monitoring)
     - [Resources](#resources)
     - [Services](#services)
     - [Relevant commands and examples](#relevant-commands-and-examples-6)
-- [Networking](#networking)
+- [08-Networking](#networking)
     - [Networking components](#networking-components)
     - [Networking tasks](#networking-tasks)
     - [Relevant commands and examples](#relevant-commands-and-examples-7)
 
 <!-- SECTION  -->
-# Linux file system navigation
+# Linux file system description and navigation
 [Back to Top](#contents)
 
 ## Everything is a file
 [Back to Top](#contents)
 
 The concept "everything is a file" is a fundamental design concept in Linux (and Unix-like systems).
+All the following are files:
 
 - Directories
 - Links
@@ -58,15 +59,15 @@ $ cd /
 $ tree -L 1
 .
 ├── bin -> usr/bin
+├── bin.usr-is-merged
 ├── boot
 ├── cdrom
 ├── dev
 ├── etc
 ├── home
 ├── lib -> usr/lib
-├── lib32 -> usr/lib32
+├── lib.usr-is-merged
 ├── lib64 -> usr/lib64
-├── libx32 -> usr/libx32
 ├── lost+found
 ├── media
 ├── mnt
@@ -75,14 +76,16 @@ $ tree -L 1
 ├── root
 ├── run
 ├── sbin -> usr/sbin
+├── sbin.usr-is-merged
 ├── snap
 ├── srv
-├── swapfile
+├── swap.img
 ├── sys
 ├── tmp
 ├── usr
 └── var
-24 directories, 1 file
+
+26 directories, 1 file
 ```
 
 You might need to install `tree` first:
@@ -95,7 +98,7 @@ $ sudo apt install tree
 |-----------|-------------|
 | `/`       | The root directory: Everything is located under the root directory. |
 | `/bin`    | User Binaries: Contains user command binaries. |
-| `/boot`   | Boot Loader Files: Contains the boot loader files, such as kernels, initrd, and sometimes configuration files for the boot loader. |
+| `/boot`   | Boot Loader Files: Contains the boot loader files, such as kernels, initrd (initial ram disk), and sometimes configuration files for the boot loader. |
 | `/dev`    | Device Files: Contains device files that represent hardware components as well as some software devices. |
 | `/etc`    | Configuration Files: Contains configuration files required by all programs, startup and shutdown shell scripts used to start/stop individual programs. |
 | `/home`   | Home Directories: Contains the personal directories of all users (each user has a directory within the `/home` directory). |
@@ -140,6 +143,13 @@ $ sudo apt install tree
     $ cd ~/Documents
     /home/nstu/Documents
     ```
+- **What do you think will happen here?**
+
+    ```bash
+    $ cd
+    $ cd ./Documents/../Downloads/
+    $ pwd
+    ```
 
 ## Relevant commands and examples
 [Back to Top](#contents)
@@ -152,23 +162,24 @@ $ sudo apt install tree
     $ # List all files (including hidden ones) with detailed info
     $ cd /var
     $ ls -la
-    total 56
-    drwxr-xr-x 14 root root     4096 Aug  8 05:58 .
-    drwxr-xr-x 20 root root     4096 Jan 11 14:24 ..
-    drwxr-xr-x  2 root root     4096 Jan 13 03:45 backups
-    drwxr-xr-x 18 root root     4096 Jan 11 20:19 cache
-    drwxrwsrwt  2 root whoopsie 4096 Aug  8 05:55 crash
-    drwxr-xr-x 70 root root     4096 Jan 12 11:04 lib
-    drwxrwsr-x  2 root staff    4096 Apr 18  2022 local
-    lrwxrwxrwx  1 root root        9 Jan 11 14:23 lock -> /run/lock
-    drwxrwxr-x 13 root syslog   4096 Feb  1 10:43 log
-    drwxrwsr-x  2 root mail     4096 Aug  8 05:52 mail
-    drwxrwsrwt  2 root whoopsie 4096 Aug  8 05:55 metrics
-    drwxr-xr-x  2 root root     4096 Aug  8 05:52 opt
-    lrwxrwxrwx  1 root root        4 Jan 11 14:23 run -> /run
-    drwxr-xr-x 12 root root     4096 Aug  8 05:59 snap
-    drwxr-xr-x  7 root root     4096 Aug  8 05:54 spool
-    drwxrwxrwt 10 root root     4096 Feb  1 10:48 tmp
+    total 60
+    drwxr-xr-x 14 root root     4096 Feb  6 02:38 .
+    drwxr-xr-x 23 root root     4096 Feb  6 01:37 ..
+    -rw-r--r--  1 root root      208 Aug 27 22:37 .updated
+    drwxr-xr-x  2 root root     4096 Feb  6 06:22 backups
+    drwxr-xr-x 21 root root     4096 Feb  6 03:47 cache
+    drwxrwsrwt  2 root whoopsie 4096 Aug 27 22:39 crash
+    drwxr-xr-x 69 root root     4096 Feb  6 10:24 lib
+    drwxrwsr-x  2 root staff    4096 Apr 22  2024 local
+    lrwxrwxrwx  1 root root        9 Aug 27 22:37 lock -> /run/lock
+    drwxrwxr-x 16 root syslog   4096 Feb  6 16:39 log
+    drwxrwsr-x  2 root mail     4096 Aug 27 22:37 mail
+    drwxrwsrwt  2 root whoopsie 4096 Aug 27 22:39 metrics
+    drwxr-xr-x  2 root root     4096 Aug 27 22:37 opt
+    lrwxrwxrwx  1 root root        4 Aug 27 22:37 run -> /run
+    drwxr-xr-x 11 root root     4096 Aug 27 22:42 snap
+    drwxr-xr-x  6 root root     4096 Aug 27 22:38 spool
+    drwxrwxrwt 13 root root     4096 Feb  6 16:51 tmp
     ```
 
     ```bash
@@ -193,7 +204,7 @@ $ sudo apt install tree
 
     ```bash
     $ # List all files (tree-like) with level one along with user and size info
-    $ tree -L 1 --du -uh ~
+    $ tree -L 1 -uh ~
     [nstu      40K]  /home/nstu
     ├── [nstu     4.0K]  Desktop
     ├── [nstu     4.0K]  Documents
@@ -240,6 +251,8 @@ $ sudo apt install tree
 
     ```bash
     $ # Set directory mode
+    $ # Can look at the directory itself
+    $ # Bun can't look inside the directory
     $ mkdir -m u-r test
     $ ls -ld test
     d-wxrwxr-x 2 nstu nstu 4096 Feb  1 11:02 test
@@ -421,16 +434,26 @@ $ sudo apt install tree
 # File viewing and manipulation
 [Back to Top](#contents)
 
+Relevat commands from previous section:
+
+- `mkdir`: create directory
+- `rmdir`: remove directory
+- `cp`: copy file
+- `mv`: move (or rename) file
+- `rm`: remove file
+
 ## File types
 [Back to Top](#contents)
 
 ```bash
 $ mkdir test
 $ touch test.txt
-$ touch test.sh & chmod u+x test.sh
+$ touch test.sh && chmod u+x test.sh
+$ ln -s test.sh test.link
 $ ls -ldrh test*
 -rw-rw-r-- 1 nstu nstu    0 Feb  1 11:30 test.txt
 -rwxrw-r-- 1 nstu nstu    0 Feb  1 11:30 test.sh
+lrwxrwxrwx 1 nstu nstu    7 Feb  1 10:24 test.link -> test.sh
 drwxrwxr-x 2 nstu nstu 4,0K Feb  1 11:29 test
 ```
 
@@ -473,6 +496,8 @@ Size: 0               Blocks: 0          IO Block: 4096   regular empty file
 ...
 ```
 
+For links, you can also use `readlink` command to show the link target.
+
 ## Permissions
 [Back to Top](#contents)
 
@@ -486,7 +511,7 @@ $ ls -ldrh test*
 drwxrwxr-x 2 nstu nstu 4,0K Feb  1 11:29 test
 ```
 
-In Linux, each file and directory has an associated set of permissions that determine who can read, write, and execute them.
+In Linux, each file and directory has an associated set of permissions that determine who can **read**, **write**, and **execute** them.
 
 Permission types:
 
@@ -500,6 +525,8 @@ Permission categories:
 - **User (u):** The file's owner.
 - **Group (g):** The set of users who belong to the file's group.
 - **Others (o):** Everyone else not in the user or group category.
+
+Note, you can use `groups` command to see the groups you are a member of.
 
 Octal notation (represents owner, group and others by a single octal digit):
 
@@ -521,9 +548,9 @@ drwxrwxr-x 775 test
 -rw-rw-r-- 664 test.txt
 ```
 
-Changing Permissions (`chmod`):
+Changing Permissions (`chmod` command):
 
-- **Alphanumeric method:**
+- **Alphanumeric method (use this one, but be aware of octal notation):**
    - `u` for user, `g` for group, `o` for others, `a` for all.
    - `+` to add a permission, `-` to remove a permission, `=` to set a permission and remove others.
    - `r` for read, `w` for write, `x` for execute.
@@ -540,7 +567,7 @@ Changing Permissions (`chmod`):
    - 4 for read (r), 2 for write (w), 1 for execute (x).
    - These values can be added together to set multiple permissions.
 
-Changing Ownership (`chown`):
+Changing Ownership (`chown` command):
 
 - **Change the user owner:**  `chown username filename`
 - **Change the group owner:** `chown :groupname filename`
@@ -575,13 +602,6 @@ Changing Group Ownership (`chgrp`):
     2024-02-01 12:39:18.235509181 +0700
     $ touch -a test.txt && stat -c '%x' test.txt 
     2024-02-01 12:39:21.935509359 +0700
-    ```
-
-    ```bash
-    $ # Update timestamp
-    $ touch test.txt
-    $ ls -l test.txt 
-    -rw-rw-r-- 1 nstu nstu 0 Feb  1 12:40 test.txt
     ```
 
 - `stat`: Displays detailed information about a particular file or file system.
@@ -638,7 +658,7 @@ Changing Group Ownership (`chgrp`):
     $ rm text-*.txt
     ```
 
-- `ln`: Creates links between files.
+- `ln`: Creates links (hard or symbolic) between files.
 
     ```bash
     $ # Create hard link (points to the same disk memory)
@@ -726,7 +746,7 @@ Changing Group Ownership (`chgrp`):
     $ rm test.txt
     ```
 
-- `cat`: Concatenates and displays file contents (also see `tac`).
+- `cat`: Concatenates and displays file contents (also see `tac` and `split`).
 
     ```bash
     $ # Displays file contents
