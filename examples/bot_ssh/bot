@@ -1,0 +1,148 @@
+#!/bin/env python
+
+import os
+import subprocess
+import time
+import logging
+
+from typing import Dict
+from typing import Any
+
+from telegram import Update
+from telegram.ext import Application
+from telegram.ext import CommandHandler
+from telegram.ext import MessageHandler
+from telegram.ext import filters
+from telegram.ext import ContextTypes
+
+SAFETY: bool = False
+
+CONFIG: Dict[str, Any] = {
+    "ALLOWED_HOSTS": {"libera1", "libera2", "libera3", "libera4"},
+    "ALLOWED_USER_IDS": {442378320, 6032757806},
+    "COMMAND_TIMEOUT": 30,
+    "LOG_FILE": "log",
+    "ALLOWED_COMMANDS": {"libera-ireg", "pwd", "ls", "cat", "grep", "head", "tail"}
+}
+
+logging.basicConfig(
+    filename=CONFIG["LOG_FILE"],
+    level=logging.INFO,
+    format='%(asctime)s | %(levelname)s | %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
+
+logger = logging.getLogger(__name__)
+
+def validate(command: str, safety:bool=SAFETY) -> str:
+    base, *_ = command.split()
+    if safety and base not in CONFIG["ALLOWED_COMMANDS"]:
+        raise ValueError(f"Command is not allowed: {base}")
+    return command
+
+def execute(target: str, command: str) -> str:
+    command = validate(command)
+    command = ["ssh",
+               "-o", "ConnectTimeout=10",
+               "-o", "StrictHostKeyChecking=yes",
+               target,
+               command]
+    result = subprocess.run(command, 
+                            stdout=subprocess.PIPE, 
+                            stderr=subprocess.PIPE, 
+                            text=True,
+                            universal_newlines=True,
+                            timeout=CONFIG["COMMAND_TIMEOUT"])
+    text = (result.stdout + result.stderr).strip() 
+    if not text:
+        text = 'Done!'
+    return text
+
+def copy(host: str) -> None:
+    command = [
+        "scp",
+        "-o", "ConnectTimeout=10",
+        "-o", "StrictHostKeyChecking=yes",
+        f"{host}:output",
+        "output"
+    ]
+    result = subprocess.run(command,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            timeout=CONFIG["COMMAND_TIMEOUT"])
+    if result.returncode != 0:
+        error = result.stderr.decode().strip()
+        raise RuntimeError(f"SCP error: {error}")
+
+async def authenticate(update: Update) -> bool:
+    user = update.effective_user
+    if user.id not in CONFIG["ALLOWED_USER_IDS"]:
+        logger.warning(f"Unauthorized attempt: {user.id}/{user.username}")
+        await update.message.reply_text("Unauthorized ID")
+        return False
+    return True
+
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await authenticate(update):
+        return
+    help = (
+        "SSH bot\n\n"
+        "Usage:\n"
+        "<code>host: command</code>\n"
+        "<code>file: host</code>\n\n"
+        "Examples:\n"
+        "<code>libera1: libera-ireg boards.gdx1.grouping.sfp.status3</code>\n\n"
+        "<code>libera1: libera-ireg dump > output</code>\n"
+        "<code>file: libera1</code>\n"
+    )
+    await update.message.reply_html(help)
+    logger.info(f"user {update.effective_user.id} started session")
+
+async def handle_command(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if not await authenticate(update):
+        return
+    user = update.effective_user
+    logger_ctx = f"{user.id}/{user.username}"
+    message = update.message.text
+    try:
+        if ": " not in message:
+            raise ValueError("Invalid format!")
+        host_part, rest = message.split(": ", 1)
+        host_part = host_part.strip()
+        rest = rest.strip()
+        if host_part == "file":
+            target_host = rest
+            if target_host not in CONFIG["ALLOWED_HOSTS"]:
+                raise ValueError(f"Host {target_host} is not allowed!")
+            local_path = None
+            try:
+                local_path = copy(target_host)
+                with open('output', 'rb') as f:
+                    await update.message.reply_document(document=f)
+                logger.info(f"File sent | {logger_ctx} | {target_host}")
+            except Exception as e:
+                await update.message.reply_text(f"Failed to transfer file: {str(e)}")
+                logger.error(f"File transfer failed | {logger_ctx} | {target_host} | {str(e)}")
+        else:
+            if host_part not in CONFIG["ALLOWED_HOSTS"]:
+                raise ValueError(f"Host {host_part} is not allowed.")
+            output = execute(host_part, rest)
+            response = f"{host_part} output:\n<pre>{output if len(output) < 4000 else 'Output is too long!'}</pre>"
+            await update.message.reply_html(response)
+            logger.info(f"Command executed | {logger_ctx} | {host_part} | {rest} | {output}")
+    except ValueError as exception:
+        await update.message.reply_text(f"{str(exception)}")
+    except Exception as e:
+        await update.message.reply_text(f"An error occurred: {str(e)}")
+        logger.error(f"Unexpected error | {logger_ctx} | {str(e)}")
+
+def main():
+    app = Application.builder().token("7930274910:AAG-iBsWkgHf7D5VireS2DZo9QL01ZoxRhk").build()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_command))    
+    logger.info("start")
+    app.run_polling()
+
+if __name__ == '__main__':
+    main()
+
