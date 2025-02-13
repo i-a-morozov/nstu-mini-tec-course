@@ -40,8 +40,9 @@
 [Back to Top](#contents)
 
 The concept "everything is a file" is a fundamental design concept in Linux (and Unix-like systems).
-All the following are files:
+All the following are file under this concept:
 
+- Files
 - Directories
 - Links
 - Devices
@@ -52,7 +53,10 @@ All the following are files:
 ## Filesystem Hierarchy Standard
 [Back to Top](#contents)
 
-The Linux file system is structured as a hierarchical directory tree, with the root denoted by `/`. This file system hierarchy is defined by the Filesystem Hierarchy Standard (FHS), which sets the standard locations for files and directories. The following command can be used to see the contents of the `/` directory. Note, `->` means the directory (file) is in fact a link, you can check where the link points using `readlink` command.
+The Linux file system is structured as a hierarchical directory tree, with the root denoted by `/`. 
+This file system hierarchy is defined by the Filesystem Hierarchy Standard (FHS), which sets the standard locations for files and directories. 
+The following command can be used to see the contents of the `/` directory. 
+Note, `->` means the directory (file) is in fact a link, you can check where the link points using `readlink` command.
 
 ```bash
 $ cd /
@@ -120,6 +124,8 @@ $ sudo apt install tree
 ## Path
 [Back to Top](#contents)
 
+Since file system is a tree, it possible to navigate to any of its nodes starting from the root or from the current working directry (or relative to the user).
+
 - **Absolute Path**
 
     ```bash
@@ -143,6 +149,7 @@ $ sudo apt install tree
     $ cd ~/Documents
     /home/nstu/Documents
     ```
+
 - **What do you think will happen here?**
 
     ```bash
@@ -289,7 +296,7 @@ $ sudo apt install tree
     ```
 
     ```bash
-    $ # Remove files using wildcards
+    $ # Remove files using wildcards (patterns like `?` and `*` to match characters in file names)
     $ touch file-{01..10}.txt
     $ ls file-*.txt
     file-01.txt  file-02.txt  file-03.txt  file-04.txt  file-05.txt  file-06.txt  file-07.txt  file-08.txt  file-09.txt  file-10.txt
@@ -434,7 +441,7 @@ $ sudo apt install tree
 # File viewing and manipulation
 [Back to Top](#contents)
 
-Relevat commands from previous section:
+Relevant commands from previous section for file manipulation:
 
 - `mkdir`: create directory
 - `rmdir`: remove directory
@@ -1217,10 +1224,11 @@ Changing Group Ownership (`chgrp`):
     E
     ```
 
-
 - `nano`, `vim`, `vi`, `neovim`: Terminal based text editors (checkout kickstart `neovim` on github)
 
-    - `command [file]`
+    Some `vim` basics:
+
+    - `vim [file]`
 
     - **Normal Mode**:
         - Default mode
@@ -1266,6 +1274,20 @@ Changing Group Ownership (`chgrp`):
 # Getting help
 [Back to Top](#contents)
 
+In this section we will learn how to get help for commands.
+Some of commands are build-in within the shell, like `cd`.
+They in particular do not have `man` pages and you can't `sudo` them.
+
+```bash
+$ sudo cd /
+sudo: cd: command not found
+sudo: "cd" is a shell built-in command, it cannot be run directly.
+sudo: the -s option may be used to run a privileged shell.
+sudo: the -D option may be used to run a command in a specific directory.
+```
+
+Look at `man buildins` output for more information on build-ins.
+
 ## Is command build-in?
 [Back to Top](#contents)
 
@@ -1280,7 +1302,7 @@ Shell, like `bash`, comes with a set of build-in commands (`man buildins`).
     ls is aliased to `ls --color=auto'
     ```
 
-- `command`
+- `command` (without flags,test if command exists)
 
     ```bash
     $ command -V cd
@@ -1341,7 +1363,6 @@ Shell, like `bash`, comes with a set of build-in commands (`man buildins`).
     umount.udisks2 (8)   - unmount file systems that have been mounted by UDisks2
     ```
 
-
 - `whereis`: Locate the binary, source, and manual page files.
 
     ```bash
@@ -1376,29 +1397,39 @@ Shell, like `bash`, comes with a set of build-in commands (`man buildins`).
     ...
     ```
 
-- Internet
+- Others
     - [Unix & Linux StackExchange](https://unix.stackexchange.com/)
     - [Ask Ubuntu](https://askubuntu.com/)
+    - LLMs
 
 
 <!-- SECTION  -->
 # Package management
 [Back to Top](#contents)
 
-## Package
+## Some definitions
 [Back to Top](#contents)
 
-In Linux, software distribution and management are primarily handled through the concept of packages and package managers. This system simplifies the process of installing, updating, configuring, and removing software.
+In Linux, software distribution and management are primarily handled through the concept of packages and package managers.
+This system simplifies the process of installing, updating, configuring, and removing software.
 
-- **Packages**: A package in Linux is a compressed file archive containing all of the files necessary to run a particular software program. These files usually include the executable program, documentation, configuration files, and additional dependencies required for the software to run properly. Common package formats include `.deb` (Debian, Ubuntu) and `.rpm` (Red Hat).
-- **Package Management**: Package management is the process of handling software installation and maintenance in a systematic way. It helps in easy installation, upgrade, configuration, and removal of software. Software packages are stored in repositories, which are servers hosting a large number of packages. These repositories are accessed over the internet and can be official (provided by the distribution maintainers) or third-party.
+- **Packages**:
+A package in Linux is a compressed file archive containing all of the files necessary to run a particular software program. 
+These files usually include the executable program, documentation, configuration files, and additional dependencies required for the software to run properly. 
+Common package formats include `.deb` (Debian, Ubuntu) and `.rpm` (Red Hat).
+
+- **Package Management**: 
+Package management is the process of handling software installation and maintenance in a systematic way. 
+It helps in easy installation, upgrade, configuration, and removal of software. 
+Software packages are stored in repositories, which are servers hosting a large number of packages. 
+These repositories are accessed over the internet and can be official (provided by the distribution maintainers) or third-party.
+
 - **Package Managers**: A package manager is a collection of tools that automate the process of installing, upgrading, configuring, and removing software packages from a Linux system.
    
-
 ## Relevant commands and examples
 [Back to Top](#contents)
 
-- `apt`: Advanced package tool (system level packages).
+- `apt`: Advanced package tool (system level packages) (Debian, Ubuntu, ...).
 
     - `sudo apt update`: Updates the list of available packages and their versions.
     - `sudo apt upgrade`: Upgrades all installed packages to the latest versions.
@@ -1443,8 +1474,9 @@ In Linux, software distribution and management are primarily handled through the
     - `sudo aptitude purge <package>`: Removes package and its configuration files.
     - `sudo aptitude search "text"`: Searches for packages related to "text".
 
+- `synaptic`: `apt` with GUI (system level packages) (`sudo apt install synaptic`).
 
-- `conda`: Anaconda package manager (user level packages).
+- `conda`: Anaconda package manager (user level packages, not limitted to Python!).
 
     - `conda --help`: General help
     - `conda command --help`: Command help (`install`, `list`, ...)
@@ -1467,11 +1499,11 @@ In Linux, software distribution and management are primarily handled through the
     - `pip install -e .`: Installs package (along with specified dependencies) from a current directory (`pyproject.toml`, `setup.py`, ..,) in edit mode
     - `pip install -r requirements`: Installs packages from a requirements file.
 
-- other: `sh`, `make` (follow installation instructions, if none, first try without `sudo`)
+- Other: `sh`, `make` (follow installation instructions, if none, first try without `sudo`)
 
     - `chmod +x <application>.sh`, `./<application>.sh`
     - `make`, `make install`
-    - `ninja`, `meson`
+    - `ninja`, `meson` and other build systems
 
 
 <!-- SECTION  -->
@@ -1480,7 +1512,6 @@ In Linux, software distribution and management are primarily handled through the
 
 ## Common tasks
 [Back to Top](#contents)
-
 
 ```bash
 $ # Add user
@@ -1831,11 +1862,13 @@ $ sudo passwd student
 # Processes and jobs management
 [Back to Top](#contents)
 
-
 ## Processes
 [Back to Top](#contents)
 
-Process is a running instance of a program. Each process is identified by a unique process ID (PID). Each running process on the system is represented by a directory in `/proc` named after its process ID (PID). For example, `/proc/1` contains information about the process with PID 1.
+Process is a running instance of a program. 
+Each process is identified by a unique process ID (PID). 
+Each running process on the system is represented by a directory in `/proc` named after its process ID (PID). 
+For example, `/proc/1` contains information about the process with PID 1.
 
 ```bash
 $ cd /proc/1
@@ -1875,19 +1908,40 @@ A process in Linux can be in one of the following states:
 
 Kernel and process interaction:
 
-- **Process Scheduler**: The scheduler is responsible for allocating CPU time to various processes. The Linux kernel uses a Completely Fair Scheduler (CFS) by default, which aims to provide a fair amount of CPU time to each process based on its priority and execution history.
-- **Process Creation**: Processes are created using the `fork()` or `clone()` system calls, which create a new process by duplicating an existing one. The `exec()` system call can then be used to replace the forked process's image with a new program.
-- **Process Termination**: A process terminates either voluntarily by calling `exit()` or by being killed by another process via a signal (e.g., `SIGKILL`).
-- **Inter-Process Communication (IPC)**: Linux provides several mechanisms for IPC, including pipes, message queues, shared memory, and semaphores, allowing processes to communicate and synchronize with each other.
-- **Process Hierarchies and Orphan Processes**: Each process, except the initial system process (init or systemd), is created by another process (its parent). If a parent process terminates before its children, the children become orphan processes and are adopted by the init/systemd process.
-- **Signals**: Signals are a form of inter-process communication that are used to notify a process that a specific event has occurred. They can be used to instruct a process to stop, continue, terminate, etc.
-- **Process Control Groups (cgroups)**: This is a kernel feature that allows the OS to organize processes into hierarchical groups to provide resource management and limiting.
-- **Namespaces**: Namespaces are another feature that the kernel provides for isolating and virtualizing system resources among different processes. For example, PID namespaces isolate the process ID number space, meaning that processes in different PID namespaces can have the same PID.
+- **Process Scheduler**: 
+The scheduler is responsible for allocating CPU time to various processes. 
+The Linux kernel uses a Completely Fair Scheduler (CFS) by default, which aims to provide a fair amount of CPU time to each process based on its priority and execution history.
+
+- **Process Creation**: 
+Processes are created using the `fork()` or `clone()` system calls, which create a new process by duplicating an existing one. 
+The `exec()` system call can then be used to replace the forked process's image with a new program.
+
+- **Process Termination**: 
+A process terminates either voluntarily by calling `exit()` or by being killed by another process via a signal (e.g., `SIGKILL`).
+
+- **Inter-Process Communication (IPC)**: 
+Linux provides several mechanisms for IPC, including pipes, message queues, shared memory, and semaphores, allowing processes to communicate and synchronize with each other.
+
+- **Process Hierarchies and Orphan Processes**: 
+Each process, except the initial system process (init or systemd), is created by another process (its parent). 
+If a parent process terminates before its children, the children become orphan processes and are adopted by the init/systemd process.
+
+- **Signals**: 
+Signals are a form of inter-process communication that are used to notify a process that a specific event has occurred. 
+They can be used to instruct a process to stop, continue, terminate, etc.
+
+- **Process Control Groups (cgroups)**: 
+This is a kernel feature that allows the OS to organize processes into hierarchical groups to provide resource management and limiting.
+
+- **Namespaces**: 
+Namespaces are another feature that the kernel provides for isolating and virtualizing system resources among different processes. 
+For example, PID namespaces isolate the process ID number space, meaning that processes in different PID namespaces can have the same PID.
 
 ## Jobs
 [Back to Top](#contents)
 
 One or multiple processes that are initiated from the same shell or terminal session and can be managed as a single unit.
+`jobs` command lists all jobs current jobs.
 
 - Jobs can be stopped, started, and managed directly from the shell using job control commands.
 - Jobs are assigned job IDs within the shell, which are different from PIDs.
@@ -1930,7 +1984,7 @@ One or multiple processes that are initiated from the same shell or terminal ses
     $ ps -aux
     ```
 
-- `pidof`: Gets the ID of a process using its name.
+- `pidof`: Gets the ID of a process using its name (also see `pgrep`).
 
     ```bash
     $ pidof bash
@@ -2167,7 +2221,9 @@ One or multiple processes that are initiated from the same shell or terminal ses
 ## Services
 [Back to Top](#contents)
 
-Sservices (daemons) are applications or programs that run in the background and perform system functions or provide various services to users and other programs. In Ubunty servises and system init are managed `systemd`. Services are defined by unit files. Unit files describe how to manage a service (start, stop, ...).
+Services (daemons) are applications or programs that run in the background and perform system functions or provide various services to users and other programs. 
+In Ubunty servises and system init are managed `systemd`. 
+Services are defined by unit files. Unit files describe how to manage a service (start, stop, ...).
 
 Basic service management:
 
