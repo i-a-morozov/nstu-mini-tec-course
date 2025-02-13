@@ -3,6 +3,7 @@
 
 <!-- SECTION -->
 # Contents
+- [Introduction](#introduction)
 - [BASH and command line basics](#bash-and-command-line-basics)
   - [Command structure](#command-structure)
   - [BASH features](#bash-features)
@@ -54,6 +55,15 @@
    - [A good place to put your scripts](#a-good-place-to-put-your-scripts)
    - [Aliases vs functions vs scripts](#aliases-vs-functions-vs-scripts)
    - [.bashrc](#bashrc)
+
+<!-- SECTION -->
+# Introduction
+[Back to Top](#contents)
+
+Mastering command line is an important skill to have in research environment.
+Often, interaction with computing resources is only avalible via command line.
+Proficient command line usage can save you a lot of time and effort (apart from impressing your colleagues and being a bullet point in you CV).
+In this course you will learn how to use write commands and scripts in `bash` to interact with the system. 
 
 <!-- SECTION -->
 # BASH and command line basics

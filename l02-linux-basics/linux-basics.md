@@ -1,5 +1,6 @@
 <!-- SECTION  -->
 # Contents
+- [00-Introduction](#introduction)
 - [01-Linux file system description and navigation](#linux-file-system-description-and-navigation)
     - [Everything is a file](#everything-is-a-file)
     - [Filesystem Hierarchy Standard](#filesystem-hierarchy-standard)
@@ -31,6 +32,24 @@
     - [Networking components](#networking-components)
     - [Networking tasks](#networking-tasks)
     - [Relevant commands and examples](#relevant-commands-and-examples-7)
+
+<!-- SECTION  -->
+# Introduction
+[Back to Top](#contents)
+
+Linux is critical part in scientific research, offering stability, flexibility, and access to a vast ecosystem of open-source tools.
+Its command-line interface and scripting capabilities make it ideal for handling large datasets, automating workflows, and running complex simulations. 
+Many high-performance computing (HPC) clusters, cloud-based research environments, and scientific software are available only under Linux.
+Proficiency in Linux empowers researchers to efficiently manage resources, troubleshoot systems, and leverage cutting-edge technologies.
+
+This mini-course equips you with essential Linux skills tailored for scientific work:
+- File System & Navigation: Organize and navigate datasets using Linux’s hierarchical structure.
+- File Manipulation: Process text/data files with commands like `grep`, `awk`, and `sed`.
+- Package Management: Install scientific software via `apt`, `conda`, or `pip`.
+- User Management: Secure shared lab environments with permissions and quotas.
+- Process Control: Manage long-running computations and parallel jobs.
+- System Monitoring: Optimize resource usage (CPU, memory, disk) for intensive tasks.
+- Networking: Transfer data securely (`scp` and`ssh`) and diagnose connectivity issues.
 
 <!-- SECTION  -->
 # Linux file system description and navigation
