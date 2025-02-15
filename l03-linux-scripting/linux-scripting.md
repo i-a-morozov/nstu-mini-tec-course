@@ -63,7 +63,13 @@
 Mastering command line is an important skill to have in research environment.
 Often, interaction with computing resources is only avalible via command line.
 Proficient command line usage can save you a lot of time and effort (apart from impressing your colleagues and being a bullet point in you CV).
-In this course you will learn how to use write commands and scripts in `bash` to interact with the system. 
+
+This course teaches you to harness `bash` scripting to streamline tasks, from simple command-line operations to writing robust automation scripts. By the end, you’ll be able to:
+- Navigate and manipulate files using advanced globbing and expansion techniques
+- Combine commands with pipes, redirections, and process substitution
+- Write reusable scripts with variables, loops, conditionals, and error handling
+- Parse inputs and design interactive tools using read, dialog, or whiptail
+- Optimize your workflow with aliases, functions, and environment customization
 
 <!-- SECTION -->
 # BASH and command line basics
