@@ -8,6 +8,7 @@
   - [Command structure](#command-structure)
   - [BASH features](#bash-features)
   - [Command line navigation](#command-line-navigation)
+  - [Command continuation](#command-continuation)
 - [Compound commands](#compound-commands)
   - [Separation of commands](#separation-of-commands)
   - [Pipes](#pipes)
@@ -257,12 +258,28 @@ Command line navigation can greatly enhance productivity and reduce the amount o
    - `Ctrl`+`N`: Next command in history
    - `Ctrl`+`P`: Previous command in history
 
+   ## Command continuation
+   [Back to Top](#contents)
+
+   Use `\` to continue a command over multiple lines:
+
+   ```bash
+   $ echo "Hi!"
+   ```
+
+   ```bash
+   $ echo \
+   "Hi!"
+   ```
 
 <!-- SECTION -->
 # Compound commands
 [Back to Top](#contents)
 
-So far we have seen how to enter and execute commands one at a time, but `bash` allows more advanced combination of commands. Commands combination is a powerful feature that allows to express complex behaviors. There are several options when it comes to commands combination: execution of several commands in a sequence, conditional execution, passing the result of one command to the other.
+So far we have seen how to enter and execute commands one at a time, but `bash` allows more advanced combination of commands. Commands combination is a powerful feature that allows to express complex behaviors. There are several options when it comes to commands combination: 
+- execution of several commands in a sequence
+- conditional execution
+- passing the result of one command to the other.
 
 <!-- SUBSECTION -->
 ## Separation of commands
@@ -355,6 +372,15 @@ $ ls versions | grep '^v.*0$' | wc -l
 ```
 
 First remove `versions` directory if any, create several nested directories with `mkdir -p versions/v-{0.1.0,0.2.0,0.2.1,1.0.0,1.0.1}`. `ls versions` command returns a list of files that are piped to `grep` command, which uses `'^v.*0$'` pattern to filter out minor versions. The output of `grep` command is piped again into `wc -l` command, which justs counts the number of such files.
+
+In case you need to redirect only **stderr**, you will need to use redirections (see [Redirections](#redirections) section). In the following example, **stderr** is first redirected to **stdout** which itself is redirected to **/dev/null**:
+
+```bash
+$ ls file 2>&1>/dev/null | grep file
+ls: cannot access 'file': No such file or directory
+```
+
+Note, occurancies of **file** will be highlighted in the above command when executed in `bash`.
 
 <!-- SUBSECTION -->
 ## Background
@@ -462,7 +488,7 @@ Using subshell `()` grouping can be more resource-intensive than using built-in 
 # Redirections
 [Back to Top](#contents)
 
-In `bash`, file descriptors are used to control input and output from a shell script. By default, every process has at least three file descriptors open:
+In `bash`, file descriptors are used to control input and output from a shell script. By default, every process has at least three file descriptors open (file descriptors are in `/dev/fd` directory):
 
 - `0` - **standard input** (stdin)
 - `1` - **standard output** (stdout)
@@ -656,6 +682,16 @@ Can also use to output to a file:
    A variant of here documents, which allows a single line of input to be redirected to a command.
    ```bash
    $ grep "fox" <<< "The quick brown fox jumps over the lazy dog"
+   ```
+   Here, `grep` expects a file name and without `<<<` we would have an error:
+   ```bash
+   $ grep "fox" "The quick brown fox jumps over the lazy dog"
+   grep: The quick brown fox jumps over the lazy dog: No such file or directory
+   ```
+   Alternative option would be to `echo` into `grep`:
+   ```bash
+   $ echo "The quick brown fox jumps over the lazy dog" | grep 'fox'
+   The quick brown fox jumps over the lazy dog
    ```
 
 ## Advanced redirections
