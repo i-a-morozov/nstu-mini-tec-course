@@ -20,6 +20,9 @@
   - [Here documents and here strings](#here-documents-and-here-strings)
   - [Advanced redirections](#advanced-redirections)
 - [Script files](#script-files)
+   - [Layout](#layout)
+   - [Execution](#execution)
+   - [Best practices](#best-practices)
 - [Pathname expansion](#pathname-expansion)
    - [Brace expansion](#brace-expansion)
    - [Wildcards](#wildcards)
@@ -728,35 +731,50 @@ Can also use to output to a file:
 # Script files
 [Back to Top](#contents)
 
-Scripts are files that contain a combination of one or several commands. A powerful feature of `bash` is the ability to use system commands directly, without the need for a wrapper, as is required in other languages like `Python`. The first line in a script is used to indicate the interpreter for the script, such as `bash`. The special symbol `#!`, known as **shebang**, precedes the full path to the interpreter, for example, `#!/bin/bash` (usage of the full path is not required, but it is a good practice or use `/usr/bin/env bash`). The hash symbol `#` on subsequent lines denotes a comment. It is common practice to define variables and functions before the main body of the script. While not required, using the `.sh` file extension is considered good practice, as it indicates that the file is a script. The typical script file layout is shown below:
+## Layout
+[Back to Top](#contents)
+
+Scripts are files that contain a combination of one or several commands. A powerful feature of `bash` is the ability to use system commands directly, without the need for a wrapper, as is required in other languages like `Python`. The first line in a script is used to indicate the interpreter for the script, such as `bash`. The special symbol `#!`, known as **shebang**, precedes the full path to the interpreter, for example, `#!/bin/bash` (usage of the full path is not required, but it is a good practice or use `#!/usr/bin/env bash`). The hash symbol `#` on subsequent lines denotes a comment. It is common practice to define variables and functions before the main body of the script. While not required, using the `.sh` file extension is considered good practice, as it indicates that the file is a script. The typical script file layout is shown below:
 
 ```bash
 #!/bin/bash
+
+# usage information
+# ./script -opt_1 -opt_2 ... arg_1 arg_2 ...
+# opt_i - ...
+# arg_i - ...
 
 # customize shell
 set -e
 
 # define variables and process input arguments
+
 name="$1"
+
 if [ -z "$name" ]; then
    name="${USER}@${HOSTNAME}"
 fi
 
 # define functions
+
 function hello() {
+   echo
    echo "hello from ${SHELL}, ${1}!"
    return 0
 }
+
 function goodbye() {
+   echo
    echo "goodbye!"
    return 0
 }
 
-# execute script
+# execute script (body)
+
 hello "${name}"
 
 # clean up (unset variables)
-# unset name
+unset name
 
 # optional 'exception handling'
 trap goodbye EXIT
@@ -767,7 +785,10 @@ exit 0
 
 Note, the `trap` command in `bash` is used to catch signals and other system events and then execute a command or a list of commands when one of these events occurs. 
 
-The above script can be executed (here commands are processed in a batch) even without creating a file which might be useful in some situations:
+## Execution
+[Back to Top](#contents)
+
+The above script can be executed (here commands are processed sequentially) even without creating a file which might be useful in some situations:
 
 ```bash
 $ bash << 'EOF'
@@ -784,10 +805,12 @@ fi
 
 # define functions
 function hello() {
+   echo
    echo "hello from ${SHELL}, ${1}!"
    return 0
 }
 function goodbye() {
+   echo
    echo "goodbye!"
    return 0
 }
@@ -801,11 +824,14 @@ trap goodbye EXIT
 # exit (can also exit with different codes)
 exit 0
 EOF
+
 hello from /bin/bash, nstu@nstu-course!
+
 goodbye!
+
 ```
 
-Note, here a special form of input stream (here-document) is used to is passed into `bash` command. All text between `<<'EOF' ... EOF` is considered as a file content. The first `EOF` is in single quotes to avoid substitutions (compare the result of with and without quotes). Different streams and redirections will be explored in more details later.
+Note, here a special form of input stream (here-document) is used to is passed into `bash` command. All text between `<<'EOF' ... EOF` is considered as a file content. The first `EOF` is in single quotes to avoid substitutions (compare the result of with and without quotes). Different streams and redirections are explored in more details in [Redirections](#redirections) section.
 
 Normally scripts are used for automation and are not intended to be used only one time as above. In this case the script is more convenient to store in a file with conventional `.sh` extension. Create a `script.sh` file.
 
@@ -824,10 +850,12 @@ fi
 
 # define functions
 function hello() {
+   echo
    echo "hello from ${SHELL}, ${1}!"
    return 0
 }
 function goodbye() {
+   echo
    echo "goodbye!"
    return 0
 }
@@ -848,15 +876,18 @@ Now `bash` command can be used to execute the script file:
 ```bash
 $ bash script.sh
 hello from /bin/bash, nstu@nstu-course!
-goodbye!
-```
 
+goodbye!
+
+```
 A more convenient and preferred method is to grant execute permissions to the script file and then run it directly from the command line:
 
 ```bash
 $ chmod u+x script.sh
 $ ./script.sh
 hello from /bin/bash, nstu@nstu-course!
+
+
 goodbye!
 ```
 
@@ -865,6 +896,19 @@ For debugging it might be useful to use `set` command with `-x` flag (see `man s
 ```bash
 $ shellcheck script.sh
 ```
+
+In the above scriprs were **executed**, variables and functions defined in them do not persist after the execution in complete. What if we actually want to make them persistent? In this case we **source** such scripts instead!
+
+- **Execute** (`./script.sh` or `bash script.sh`)
+   - Runs the script in a new subshell (child process).
+   - Any variables and functions defined in the script do not persist after execution.
+
+- **Source** (`source script.sh` or `. script.sh`):
+   - Runs the script in the current shell (no new process).
+   - Variables and functions defined in the script remain available after execution.
+
+## Best practices
+[Back to Top](#contents)
 
 Large and complex scripts in `bash` might be hard to follow. Below are some things to consider when writing scripts:
 
@@ -906,7 +950,7 @@ Make sure to add comments where it makes sense (describe what your script is for
 
 - **Shell Options**: Use the `set` command to change shell attributes and options.
 
-- **Environment Variables**: Use environment variables to modify the behavior of your script without changing the code, e.g. set an environmental variable to a different value prio to script execution.
+- **Environment Variables**: Use environment variables to modify the behavior of your script without changing the code, e.g. set an environmental variable (see [Variables](#variables) section) to a different value prio to script execution.
 
 - **Configuration Files**: Source external configuration files that define variables and functions.
 
@@ -949,7 +993,7 @@ $ echo {100..0..5}
 100 95 90 85 80 75 70 65 60 55 50 45 40 35 30 25 20 15 10 5 0
 ```
 
-Generate a sequence with numbers padded with zeroes to ensure a fixed string length:
+Generate a sequence with numbers padded with zeroes to ensure a fixed string length (why this might be useful?):
 
 ```bash
 $ echo {000..100..5}
@@ -1004,6 +1048,13 @@ vector_a_1  vector_a_2  vector_b_1  vector_b_2
 $ ls matrix_?_?
 matrix_a_1  matrix_a_2  matrix_b_1  matrix_b_2
 $ rm {vector,matrix}_{a..b}_{1..2}
+```
+
+The following nesting also works:
+
+```bash
+$ echo {{a..z},{0..9}}
+a b c d e f g h i j k l m n o p q r s t u v w x y z 0 1 2 3 4 5 6 7 8 9
 ```
 
 Create nested directories:
@@ -1100,11 +1151,30 @@ Globbing is a way to specify patterns matching to groups of filenames. Brace exp
 
 - **Wildcard Expansion**: In `bash`, wildcard patterns are expanded to match filenames, and brace expansions occur before command execution. This process ensures that commands receive actual filenames, not the original patterns or braces.
 
-- **No Matches**: When a glob pattern finds no matching filenames in `bash`, it remains as is. However, enabling the `nullglob` option removes unmatched patterns, resulting in a null string. Conversely, with `failglob` enabled, unmatched patterns cause the command to fail.
+- **No Matches**: When a glob pattern finds no matching filenames in `bash`, it remains as is. However, enabling the `nullglob` option (see `shopt`) removes unmatched patterns, resulting in a null string. Conversely, with `failglob` enabled, unmatched patterns cause the command to fail.
+
+```bash
+$ # set option
+$ shopt -s nullglob
+$ # unset option
+$ shopt -u nullglob
+```
 
 - **Dot Files**: Dot files (those beginning with `.`) are not matched by the `*` or `?` wildcards unless the pattern explicitly includes the dot.
 
 - **Non-Recursive**: Glob patterns, by default, do not extend their search to subdirectories.
+
+```bash
+$ shopt -s failglob
+$ mkdir test
+$ touch test/file_{01..10}.txt
+$ ls *txt
+-bash: no match: *txt
+$ ls */*txt
+test/file_01.txt  test/file_03.txt  test/file_05.txt  test/file_07.txt  test/file_09.txt
+test/file_02.txt  test/file_04.txt  test/file_06.txt  test/file_08.txt  test/file_10.txt
+$ shopt -u failglob
+```
 
 - **Case Sensitivity**: Matching patterns are case-sensitive by default. This behavior can be changed by setting the `nocaseglob` shell option.
 
@@ -1118,6 +1188,7 @@ Globbing is a way to specify patterns matching to groups of filenames. Brace exp
 Variables can be set within the command line or inside the script file using the following syntax:
 
 ```bash
+$ # No spaces around equal sign
 $ name=value
 ```
 
@@ -1169,9 +1240,9 @@ ${name}
 
 There are important differences between using double quotes (`"`) and single quotes (`'`):
 
-- **Double Quotes (`"`)**: using `"` allows for parameter substitution (also for brace expansion, command substitution and arithmetic expansion) to take place. If `name="value"`, then `"name is $name"` will result in `name is value`. Double quotes prevent word splitting and pathname expansion, so they are safer to use when your variable might contain spaces or special characters. For example, a variable `name=*` when used without quotes will be expanded, which might not be desired. 
+- **Double Quotes (`"`)**: using `"` allows for parameter substitution (also for brace expansion, command substitution and arithmetic expansion) to take place. If `name="value"`, then `echo "name is $name"` will result in `name is value`. Double quotes prevent word splitting and pathname expansion, so they are safer to use when your variable might contain spaces or special characters. For example, a variable `name=*` when used without quotes will be expanded, which might not be desired. 
 
-- **Single Quotes (`'`)**: Enclosing a variable in single quotes will treat everything inside as a literal string, so no variable expansion or command substitution will occur. If `name="value"`, then `'name is $name'` will result in `name is $name`.
+- **Single Quotes (`'`)**: Enclosing a variable in single quotes will treat everything inside as a literal string, so no variable expansion or command substitution will occur. If `name="value"`, then `echo 'name is $name'` will result in `name is $name`.
 
 When referencing a variable, consider the following:
 
@@ -1191,13 +1262,22 @@ Referencing variables without quotes can lead to unexpected behaviors and issues
 
 - **Unpredictable Loop Iterations**: When looping over a variable's contents, unquoted references can split items incorrectly, creating more loop iterations than intended.
 
+```bash
+$ animals="cat dog"
+$ for animal in "${animals}"; do echo $animal; done
+cat dog
+$ for animal in $animals; do echo $animal; done
+cat
+dog
+```
+
 - **Conditional Expression Errors**: In conditional expressions, unquoted variables can lead to syntax errors or unintended results if they contain spaces or are empty.
 
 <!-- SUBSECTION -->
 ## Customization
 [Back to Top](#contents)
 
-Customization of variables behaviour is possible with `local` keyword, that is used only inside functions to limit the scope of a variable to that function. This means the variable will not be accessible or interfere with variables outside the function or in the global scope:
+Customization of variables behaviour is possible with `local` keyword, that is used only inside **functions** to limit the scope of a variable to that function. This means the variable will not be accessible or interfere with variables outside the function or in the global scope:
 
 ```bash
 $ function foo() {
@@ -1244,7 +1324,7 @@ If `global_var` was defined before the function call, it's value will be overwri
    2
    ```
 
-- **Creating an Associative Array (similar to dictionary)**:
+- **Creating an Associative Array (similar to dictionary in Python)**:
 
    ```bash
    $ unset x
@@ -1288,6 +1368,18 @@ There are several other commands that can be used to modify variables and their 
 
    ```bash
    $ export name="value"
+   ```
+   ```bash
+   $ x=1
+   $ bash << 'EOF'
+   echo $x
+   EOF
+
+   $ export x=1
+   $ bash << 'EOF'
+   echo $x
+   EOF
+   1
    ```
 
 - **`readonly`**: This command is used to make variables or functions read-only. Once a variable is set as readonly, its value cannot be changed.
