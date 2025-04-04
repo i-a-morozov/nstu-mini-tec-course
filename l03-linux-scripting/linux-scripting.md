@@ -1719,9 +1719,11 @@ Note, arrays are indexed starting from 0 in `bash` (from 1 in `zsh`).
 
 In `bash`, `(( ))` is used to perform arithmetic operations. Within `(( ))`, variables can be referenced without the `$` prefix and perform arithmetic operations just like in other programming languages (variables used within `(( ))` are expected to numbers in this case).
 
+Note, you do not need to put spaces after `((` or before `))` in math ops.
+
 ```bash
 $ # Perform math and set the result to
-$ (( result = 1 + 2 ))
+$ ((result = 1 + 2))
 $ echo "1 + 2 = ${result}"
 1 + 2 = 3
 
@@ -1747,6 +1749,22 @@ $ if (( a > b )) ; then
 1 > 0
 ```
 
+Exit code of math comparison:
+
+```bash
+# FALSE corresponds to 1 exit code
+$ ((0 > 1))
+$ echo $?
+1
+```
+
+```bash
+# TRUE corresponds to 0 exit code
+$ ((0 < 1))
+$ echo $?
+1
+```
+
 Other common math operations: subtraction (`-`), division (`/`), modulus (`%`), exponentiation (`**`), and other. It's important to note that `bash` only supports integer arithmetic in `(( ))`, so if you perform division, it will only return the integer part of the result. Use `bc` or `python` for floating point arithmetic.
 
 ```bash
@@ -1761,17 +1779,10 @@ $ a=2
 $ b=5
 $ echo $((a*b))
 10
+$ # Since * is a special bash character (wildcard)
+$ # It should be escaped with \
 $ echo $(expr $a \* $b)
 10
-```
-
-`zsh` supports floating-point arithmetic (64bit):
-
-```zsh
-$ a=4.0
-$ b=2.0
-$ echo $((a/b))
-2.
 ```
 
 Undefined variables are evaluated to zero:
@@ -2649,7 +2660,7 @@ Use `return` to exit a function with a status code. To return data, use `echo` o
 # Input
 [Back to Top](#contents)
 
-- **`read`**:
+- **`read`:
 
    `read` is a built-in `bash` command that reads a line from the standard input (or from a file) and assigns it to a variable.
 
@@ -2732,7 +2743,7 @@ Use `return` to exit a function with a status code. To return data, use `echo` o
     #!/bin/bash
     
     # Parse options
-    OPTS=$(getopt -o ab:c:: --long option-a,option-b:,option-c:: -- "$@"
+    OPTS=`getopt -o ab:c:: --long option-a,option-b:,option-c:: -- "$@"`
     
     if [ $? != 0 ] ; then echo "Failed parsing options." >&2 ; exit 1 ; fi
     
@@ -2825,7 +2836,7 @@ These scripts provide a basic framework for parsing arguments and options. You c
 
    ```bash
    $ ./<script.sh> # execute or bash <path>/<script.sh`>
-   $ . <script.sh> # source
+   $ . <script.sh> # source <script.sh> (more explicit)
    ```
 
 - Add script directories `$PATH` (export in command line or in `.bashrc`)
@@ -2871,6 +2882,12 @@ In `bash`, aliases, functions, and scripts serve similar purposes in that they a
 
    - They are suitable for sequences of commands that need to act like a single command and are too complex for an alias
 
+      ```bash
+      function python () {
+         cat ${1} | ssh -Y <user>@<host> python
+      }
+      ```
+
 - **Script**:
 
    - A script is a separate file which can be executed (program), can be as simple as a single command or as complex as a full-fledged application
@@ -2897,7 +2914,7 @@ Start with an alias for simplicity, move to a function if you need more complexi
 ## .bashrc
 [Back to Top](#contents)
 
-The `.bashrc` (`rc` = run commands) file is a script that is executed whenever a new terminal session is started in interactive mode. It's a place where you can define and customize your shell environment.
+The `.bashrc` (`rc` = run commands) file is a script that is executed (sourced) whenever a new terminal session is started in interactive mode. It's a place where you can define and customize your shell environment.
 
 ### What to place in `.bashrc`:
 
@@ -2936,4 +2953,3 @@ The `.bashrc` (`rc` = run commands) file is a script that is executed whenever a
 - **Modular Approach**: Consider sourcing other scripts from your `.bashrc` for complex configurations (e.g., `source ~/my_bash_aliases.sh`)
 
 Changes to `.bashrc` won't take effect in current sessions until you source the file with `source ~/.bashrc` or open a new terminal.
-
