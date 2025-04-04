@@ -1762,7 +1762,7 @@ $ echo $?
 # TRUE corresponds to 0 exit code
 $ ((0 < 1))
 $ echo $?
-1
+0
 ```
 
 Other common math operations: subtraction (`-`), division (`/`), modulus (`%`), exponentiation (`**`), and other. It's important to note that `bash` only supports integer arithmetic in `(( ))`, so if you perform division, it will only return the integer part of the result. Use `bc` or `python` for floating point arithmetic.
@@ -1925,7 +1925,8 @@ $ ((0 == 1))
 $ echo $?
 1
 $ ((0 == 0))
-$ 0
+$ echo $?
+0
 ```
 
 <!-- SECTION -->
@@ -2641,7 +2642,7 @@ Use `return` to exit a function with a status code. To return data, use `echo` o
    0
    ```
 
-5. **Error Handling**: Check for errors and return a non-zero status when encountering an error. This allows the calling code to handle the error appropriately.
+- **Error Handling**: Check for errors and return a non-zero status when encountering an error. This allows the calling code to handle the error appropriately.
 
     ```bash
     do_something() {
@@ -2842,7 +2843,7 @@ These scripts provide a basic framework for parsing arguments and options. You c
 - Add script directories `$PATH` (export in command line or in `.bashrc`)
 
    ```bash
-   $ export PATH=<path>/<script.sh>:$PATH
+   $ export PATH=<path>:$PATH
    $ <script.sh>
    ```
 
