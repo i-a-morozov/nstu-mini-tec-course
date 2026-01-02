@@ -65,7 +65,7 @@
 [Back to Top](#contents)
 
 Mastering command line is an important skill to have in research environment.
-Often, interaction with computing resources is only avalible via command line.
+Often, interaction with computing resources is only available via command line.
 Proficient command line usage can save you a lot of time and effort (apart from impressing your colleagues and being a bullet point in you CV).
 
 This course teaches you to harness `bash` scripting to streamline tasks, from simple command-line operations to writing robust automation scripts. By the end, you’ll be able to:
@@ -119,7 +119,7 @@ $ command [options] [arguments]
 
 Several short options that don't require additional values (act like on/off flags) can be combined, e.g in `ls -a -l` can be written as `ls -al`. Long options cannot be combined in the same way. Some long options might require an equals sign when assigning a value, like `--option=value`.
 
-Additionally `--` can be used by itself to signify the end of the command options. After `--`, all following inputs are treated as arguments, not as options. This is particularly useful when `-` present in commands.
+Additionally `--` can be used by itself to signify the end of the command options. After `--`, all following inputs are treated as arguments, not as options. This is particularly useful when `-` is present in commands.
 
 Equally important concept is the command **exit code**. Executing a command returns a value that indicates its execution status. The **exit code** of the most recent command can be checked with `echo $?` command:
 
@@ -193,7 +193,7 @@ v-1.0.0  v-0.2.0  v-0.1.0
 $ rm -r versions
 ```
 
-Again, a pattern `'v-*[^0]'` was used that now hides directories that do not end with a zero. Note, this will work as intended only if patch numbers are in `{0..9}` range. The last command `rm -r versions` removes versions` directory and all its subdirectories.
+Again, a pattern `'v-*[^0]'` was used that now hides directories that do not end with a zero. Note, this will work as intended only if patch numbers are in `{0..9}` range. The last command `rm -r versions` removes versions directory and all its subdirectories.
 
 The above examples illustrate the usage of `ls` command with different options and arguments. Use `man command` to see all available option(s) and the form argument(s) for different commands, e.g. look at `pwd`, `ls`, `cd`, `cp`, `mv` and `rm`.
 
@@ -332,7 +332,7 @@ $ echo $?
 1
 ```
 
-Lets now break down the following command:
+Let's now break down the following command:
 
 ```bash
 $ mkdir versions || cd versions && mkdir v-{1..5}.0.0 || ls ; cd ..
@@ -374,7 +374,7 @@ $ ls versions | grep '^v.*0$' | wc -l
 3
 ```
 
-First remove `versions` directory if any, create several nested directories with `mkdir -p versions/v-{0.1.0,0.2.0,0.2.1,1.0.0,1.0.1}`. `ls versions` command returns a list of files that are piped to `grep` command, which uses `'^v.*0$'` pattern to filter out minor versions. The output of `grep` command is piped again into `wc -l` command, which justs counts the number of such files.
+First remove `versions` directory if any, create several nested directories with `mkdir -p versions/v-{0.1.0,0.2.0,0.2.1,1.0.0,1.0.1}`. `ls versions` command returns a list of files that are piped to `grep` command, which uses `'^v.*0$'` pattern to filter out minor versions. The output of `grep` command is piped again into `wc -l` command, which just counts the number of such files.
 
 In case you need to redirect only **stderr**, you will need to use redirections (see [Redirections](#redirections) section). In the following example, **stderr** is first redirected to **stdout** which itself is redirected to **/dev/null**:
 
@@ -383,7 +383,7 @@ $ ls file 2>&1>/dev/null | grep file
 ls: cannot access 'file': No such file or directory
 ```
 
-Note, occurancies of **file** will be highlighted in the above command when executed in `bash`.
+Note, occurrences of **file** will be highlighted in the above command when executed in `bash`.
 
 <!-- SUBSECTION -->
 ## Background
@@ -436,7 +436,7 @@ $ ls versions/
 README.MD
 ```
 
-Grouping with `{}` can be used to group commands within given shell, no subshells are created. In contrast, using `()` for grouping will in general (except simple commands that can be optimized out) with execute commands inside `()` in subshell:
+Grouping with `{}` can be used to group commands within given shell, no subshells are created. In contrast, using `()` for grouping will in general (except simple commands that can be optimized out) execute commands inside `()` in subshell:
 
 Example of `()` grouping with simple command (no subshell process):
 
@@ -724,7 +724,7 @@ Can also use to output to a file:
 
    ```bash
    $ exec > outputfile # All subsequent commands' stdout will go to outputfile
-   $ exec 2> errorfile # All subsequent commands' stderr will goto errorfile
+   $ exec 2> errorfile # All subsequent commands' stderr will go to errorfile
    ```
 
 <!-- SECTION -->
@@ -831,7 +831,7 @@ goodbye!
 
 ```
 
-Note, here a special form of input stream (here-document) is used to is passed into `bash` command. All text between `<<'EOF' ... EOF` is considered as a file content. The first `EOF` is in single quotes to avoid substitutions (compare the result of with and without quotes). Different streams and redirections are explored in more details in [Redirections](#redirections) section.
+Note, here a special form of input stream (here-document) is used to passed into `bash` command. All text between `<<'EOF' ... EOF` is considered as a file content. The first `EOF` is in single quotes to avoid substitutions (compare the result of with and without quotes). Different streams and redirections are explored in more details in [Redirections](#redirections) section.
 
 Normally scripts are used for automation and are not intended to be used only one time as above. In this case the script is more convenient to store in a file with conventional `.sh` extension. Create a `script.sh` file.
 
@@ -950,7 +950,7 @@ Make sure to add comments where it makes sense (describe what your script is for
 
 - **Shell Options**: Use the `set` command to change shell attributes and options.
 
-- **Environment Variables**: Use environment variables to modify the behavior of your script without changing the code, e.g. set an environmental variable (see [Variables](#variables) section) to a different value prio to script execution.
+- **Environment Variables**: Use environment variables to modify the behavior of your script without changing the code, e.g. set an environment variable (see [Variables](#variables) section) to a different value prio to script execution.
 
 - **Configuration Files**: Source external configuration files that define variables and functions.
 
@@ -1215,7 +1215,7 @@ $ echo "${name}"
 value
 ```
 
-In math expressions `$` can be ommitted, since the meaning is clear from the context.
+In math expressions `$` can be omitted, since the meaning is clear from the context.
 
 ```bash
 $ x=1
@@ -1224,9 +1224,9 @@ $ echo $(( x + y ))
 2
 ```
 
-All these methods are valid for basic tasks, but full parameter expansion syntax if often prefered since it is the savest one and allows additional proccesing (see bellow). Note, referencing an undefined variable returns an empty string.
+All these methods are valid for basic tasks, but full parameter expansion syntax is often prefered since it is the savest one and allows additional proccesing (see bellow). Note, referencing an undefined variable returns an empty string.
 
-The term **variable** is used here to refer to a `name` in the expresson of the form `name=value` instead of calling is a **parameter** which is a more general term that also includes special characters (like `?` for the **exit code**) and positional parameters of functions and scripts.
+The term **variable** is used here to refer to a `name` in the expression of the form `name=value` instead of calling is a **parameter** which is a more general term that also includes special characters (like `?` for the **exit code**) and positional parameters of functions and scripts.
 
 Variable values are not substituted into expressions surrounded by single quotes, such expressions are literal.
 
@@ -1252,7 +1252,7 @@ When referencing a variable, consider the following:
 
 Referencing variables without quotes can lead to unexpected behaviors and issues:
 
-- **Splitting**: If a variable containing spaces used in a context where word splitting occurs, such as in a loop or when passed as an argument to a command, each part would be treated as a separate word if it is referenced without quotes.
+- **Splitting**: If a variable containing spaces is used in a context where word splitting occurs, such as in a loop or when passed as an argument to a command, each part would be treated as a separate word if it is referenced without quotes.
 
 - **Globbing**: Unquoted variables undergo globbing, where patterns like `*`, `?`, and `[]` are expanded to matching filenames.
 
@@ -1523,7 +1523,7 @@ In `bash`, you can set an environment variable for the current session using the
 ```bash
 $ export NAME="VALUE"
 ```
-This will make `NAME` (common paractice is to use uppercase names) available to all child processes initiated from that session (including subshells).
+This will make `NAME` (common practice is to use uppercase names) available to all child processes initiated from that session (including subshells).
 
 You can view a list of all environment variables by running the `env` command, or you can echo a specific variable using `echo`:
 ```bash
@@ -1532,7 +1532,7 @@ VALUE
 $ env | grep NAME
 NAME=VALUE
 ```
-- Do not to store sensitive data likepasswords or API keys in your environment variables if your scripts or processes are shared or stored in insecure places
+- Do not to store sensitive data like passwords or API keys in your environment variables if your scripts or processes are shared or stored in insecure places
 - Use expressive names for your environment variables (prefix with application name `APP_NAME`)
 - Consider using local variables instead of global ones
 - Do not overwrite system variables (`PATH`, `HOME`, `SHELL`)
@@ -2516,7 +2516,7 @@ In an until loop, the loop continues executing until the condition becomes true.
    > done
    ```
 
-- **Command sustitution**:
+- **Command substitution**:
 
    ```bash
    $ touch {1..5}.txt
@@ -2865,11 +2865,11 @@ In `bash`, aliases, functions, and scripts serve similar purposes in that they a
       alias la='ls -A'
       ```
 
-   - Typically defined in a user’s shell profile file, e.g in `.bashrc`
+   - Typically defined in a user’s shell profile file, e.g. in `.bashrc`
 
-   - Aliases are text substitutions, they are not sutable to handle arguments
+   - Aliases are text substitutions, they are not suitable to handle arguments
 
-   - Aliases are can be affected by the current shell environment
+   - Aliases can be affected by the current shell environment
 
    - Use for simple command substitutions or for a quick shorthand for a long command
 
@@ -2877,7 +2877,7 @@ In `bash`, aliases, functions, and scripts serve similar purposes in that they a
 
    - Functions can accept arguments and contain complex logic
 
-   - Typically defined in a user’s shell profile file, e.g in `.bashrc`, or in other files that are sourced to make functions avaliable
+   - Typically defined in a user’s shell profile file, e.g in `.bashrc`, or in other files that are sourced to make functions available
 
    - Functions are executed in the current shell without spawning a new process
 

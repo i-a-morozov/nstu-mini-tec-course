@@ -1,3 +1,4 @@
+ <!--I.M. 2026  -->
 <!-- SECTION  -->
 # Contents
 - [00-Introduction](#introduction)
@@ -11,7 +12,7 @@
     - [Permissions](#permissions)
     - [Relevant commands and examples](#relevant-commands-and-examples-1)
 - [03-Getting help](#getting-help)
-    - [Is command build-in](#is-command-build-in)
+    - [Is command built-in](#is-command-built-in)
     - [Relevant commands and examples](#relevant-commands-and-examples-2)
 - [04-Package management](#package-management)
     - [Package](#package)
@@ -37,7 +38,7 @@
 # Introduction
 [Back to Top](#contents)
 
-Linux is critical part in scientific research, offering stability, flexibility, and access to a vast ecosystem of open-source tools.
+Linux a is critical part in scientific research, offering stability, flexibility, and access to a vast ecosystem of open-source tools.
 Its command-line interface and scripting capabilities make it ideal for handling large datasets, automating workflows, and running complex simulations. 
 Many high-performance computing (HPC) clusters, cloud-based research environments, and scientific software are available only under Linux.
 Proficiency in Linux empowers researchers to efficiently manage resources, troubleshoot systems, and leverage cutting-edge technologies.
@@ -49,7 +50,7 @@ This mini-course equips you with essential Linux skills tailored for scientific 
 - User Management: Secure shared lab environments with permissions and quotas.
 - Process Control: Manage long-running computations and parallel jobs.
 - System Monitoring: Optimize resource usage (CPU, memory, disk) for intensive tasks.
-- Networking: Transfer data securely (`scp` and`ssh`) and diagnose connectivity issues.
+- Networking: Transfer data securely (`scp` and `ssh`) and diagnose connectivity issues.
 
 <!-- SECTION  -->
 # Linux file system description and navigation
@@ -59,7 +60,7 @@ This mini-course equips you with essential Linux skills tailored for scientific 
 [Back to Top](#contents)
 
 The concept "everything is a file" is a fundamental design concept in Linux (and Unix-like systems).
-All the following are file under this concept:
+All the following are files under this concept:
 
 - Files
 - Directories
@@ -143,7 +144,7 @@ $ sudo apt install tree
 ## Path
 [Back to Top](#contents)
 
-Since file system is a tree, it possible to navigate to any of its nodes starting from the root or from the current working directry (or relative to the user).
+Since file system is a tree, it is possible to navigate to any of its nodes starting from the root or from the current working directory (or relative to the user).
 
 - **Absolute Path**
 
@@ -278,7 +279,7 @@ Since file system is a tree, it possible to navigate to any of its nodes startin
     ```bash
     $ # Set directory mode
     $ # Can look at the directory itself
-    $ # Bun can't look inside the directory
+    $ # But can't look inside the directory
     $ mkdir -m u-r test
     $ ls -ld test
     d-wxrwxr-x 2 nstu nstu 4096 Feb  1 11:02 test
@@ -309,7 +310,7 @@ Since file system is a tree, it possible to navigate to any of its nodes startin
     $ chmod u-w test.txt
     $ rm test.txt
     rm: remove write-protected regular empty file 'test.txt'? n
-    $ ls text.txt
+    $ ls test.txt
     test.txt
     $ rm -f test.txt
     ```
@@ -641,7 +642,7 @@ Changing Group Ownership (`chgrp`):
     ```
 
     ```bash
-    $ # Shows name ans size in bytes
+    $ # Shows name and size in bytes
     $ truncate -s 16M text.txt
     $ stat -c '%n %s' text.txt 
     text.txt 16777216
@@ -1294,7 +1295,7 @@ Changing Group Ownership (`chgrp`):
 [Back to Top](#contents)
 
 In this section we will learn how to get help for commands.
-Some of commands are build-in within the shell, like `cd`.
+Some commands are built-in within the shell, like `cd`.
 They in particular do not have `man` pages and you can't `sudo` them.
 
 ```bash
@@ -1305,12 +1306,12 @@ sudo: the -s option may be used to run a privileged shell.
 sudo: the -D option may be used to run a command in a specific directory.
 ```
 
-Look at `man buildins` output for more information on build-ins.
+Look at `man builtins` output for more information on built-ins.
 
-## Is command build-in?
+## Is command built-in?
 [Back to Top](#contents)
 
-Shell, like `bash`, comes with a set of build-in commands (`man buildins`).
+Shell, like `bash`, comes with a set of built-in commands (`man builtins`).
 
 - `type`
 
@@ -1465,7 +1466,7 @@ These repositories are accessed over the internet and can be official (provided 
     - `snap find "text"`: Searches for snaps related to "text".
     - `sudo snap revert <package>`: Reverts the installed package to the previous version.
 
-- `flatpak`: Distribution independent package tool: install, build, run applications (system level packages) (`sudo apt install flatpack`).
+- `flatpak`: Distribution independent package tool: install, build, run applications (system level packages) (`sudo apt install flatpak`).
 
     - `flatpak update`: Updates all installed flatpak applications.
     - `flatpak list`: Lists all installed flatpak applications.
@@ -1495,7 +1496,7 @@ These repositories are accessed over the internet and can be official (provided 
 
 - `synaptic`: `apt` with GUI (system level packages) (`sudo apt install synaptic`).
 
-- `conda`: Anaconda package manager (user level packages, not limitted to Python!).
+- `conda`: Anaconda package manager (user level packages, not limited to Python!).
 
     - `conda --help`: General help
     - `conda command --help`: Command help (`install`, `list`, ...)
@@ -1821,7 +1822,7 @@ $ sudo passwd student
     ```
 
     ```bash
-    $ # Recursivly remove write permision 
+    $ # Recursively remove write permission 
     $ mkdir -p backup/version-{1..5}/src
     $ tree -p backup/
     [drwxrwxr-x]  backup/
@@ -2097,7 +2098,7 @@ One or multiple processes that are initiated from the same shell or terminal ses
 
     ```bash
     $ # Bring the most recent background job to the foreground
-    $ # Press Crtl+C to cancel sleep
+    $ # Press Ctrl+C to cancel sleep
     $ sleep 100 &
     $ fg
     sleep 100
@@ -2106,7 +2107,7 @@ One or multiple processes that are initiated from the same shell or terminal ses
 
     ```bash
     $ # By ID (can do several)
-    $ # Press Crtl+C to cancel sleep
+    $ # Press Ctrl+C to cancel sleep
     $ sleep 100 &
     $ fg 1
     sleep 100
@@ -2115,7 +2116,7 @@ One or multiple processes that are initiated from the same shell or terminal ses
 
     ```bash
     $ # By name (can do several)
-    $ # Press Crtl+C to cancel sleep
+    $ # Press Ctrl+C to cancel sleep
     $ fg "%sleep" 
     sleep 100
     ^C
@@ -2181,7 +2182,7 @@ One or multiple processes that are initiated from the same shell or terminal ses
 
      ```bash
      $ # Executes at selected time, e.g. HH:MM [AM/PM] MM DD
-     $ # Enter commnd(s) and press `Ctrl + D`
+     $ # Enter command(s) and press `Ctrl + D`
      $ at now + 1 hour
      ```
 
@@ -2196,8 +2197,8 @@ One or multiple processes that are initiated from the same shell or terminal ses
      ```
 
      ```bash
-     $ # Executes when he system load levels drop to a certain level
-     $ # Enter commnd(s) and press `Ctrl + D`
+     $ # Executes when the system load levels drop to a certain level
+     $ # Enter command(s) and press `Ctrl + D`
      $ batch
      ```
 
@@ -2241,7 +2242,7 @@ One or multiple processes that are initiated from the same shell or terminal ses
 [Back to Top](#contents)
 
 Services (daemons) are applications or programs that run in the background and perform system functions or provide various services to users and other programs. 
-In Ubunty servises and system init are managed `systemd`. 
+In Ubuntu, services and system init are managed by systemd `systemd`. 
 Services are defined by unit files. Unit files describe how to manage a service (start, stop, ...).
 
 Basic service management:
@@ -2282,7 +2283,7 @@ Basic service management:
 
     ```bash
     $ # Unmout
-    $ sudo umount /mnt`
+    $ sudo umount /mnt
     ```
 
     ```bash
