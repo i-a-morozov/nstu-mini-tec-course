@@ -204,7 +204,7 @@ Here is another one:
 
 It is not a good idea to run a local LLM on a VM, do it on your host machine instead if you are feeling adventurous.
 
-# (optional) VSCode
+# (optional) VSCode (or Cursor)
 [Back to Top](#navigation)
 
 - [Download](https://code.visualstudio.com/) and install for your system
